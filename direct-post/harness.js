@@ -48,9 +48,10 @@ function clearCreds() {
   document.cookie = CREDS_COOKIE + '=; max-age=0; Secure; SameSite=Strict; Path=/fatzebra/direct-post/';
 }
 
-// Auto-set return_path to callback.html alongside harness.html
+// Auto-set return_path / jsonp_return_path to callback.html
 const callbackUrl = window.location.href.replace(/harness\.html.*$/, 'callback.html');
 $('#return_path').val(callbackUrl);
+$('#jsonp_return_path').val(callbackUrl);
 
 $('#reference').val(crypto.randomUUID());
 
@@ -85,10 +86,8 @@ $('input[name="submit-mode"]').on('change', function () {
   $('#preview-display').hide();
 });
 
-// Show/hide return_path field for JSONP formulas that need it
 $('#hash-formula').on('change', function () {
-  const needsRp = $(this).val().endsWith(':rp');
-  $('#jsonp-return-path-group').toggle(needsRp);
+  $('#jsonp-return-path-group').toggle($(this).val().endsWith(':rp'));
 });
 
 function getMode() {
@@ -207,6 +206,7 @@ $('#preview').on('click', function () {
       currency:     currency,
       reference:    reference,
     };
+    if (formula.endsWith(':rp')) data.return_path = rpVal;
     if (verification !== null) data.verification = verification;
 
     pendingRequest = { mode: 'jsonp', url, data };

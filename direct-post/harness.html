@@ -94,16 +94,16 @@
             <div class="form-group">
               <label for="hash-formula">Hash input formula</label>
               <select id="hash-formula" class="form-control">
+                <option value="ref:cen:cur:rp" selected>ref : cents : currency : return_path (confirmed working)</option>
+                <option value="ref:dec:cur:rp">ref : decimal : currency : return_path</option>
                 <option value="ref:dec:cur">ref : decimal : currency</option>
                 <option value="ref:cen:cur">ref : cents : currency</option>
                 <option value="dec:ref:cur">decimal : ref : currency</option>
                 <option value="cen:ref:cur">cents : ref : currency</option>
-                <option value="ref:dec:cur:rp">ref : decimal : currency : return_path</option>
-                <option value="ref:cen:cur:rp">ref : cents : currency : return_path</option>
                 <option value="none">(omit verification — diagnostic)</option>
               </select>
             </div>
-            <div class="form-group" id="jsonp-return-path-group" style="display:none;">
+            <div class="form-group" id="jsonp-return-path-group">
               <label for="jsonp_return_path">return_path (included in hash)</label>
               <input type="text" id="jsonp_return_path" class="form-control" placeholder="leave empty to hash empty string">
             </div>
@@ -238,6 +238,6 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=6"></script>
+    <script src="harness.js?v=7"></script>
   </footer>
 </html>
