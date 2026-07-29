@@ -88,7 +88,14 @@ $('input[name="submit-mode"]').on('change', function () {
 });
 
 $('#hash-formula').on('change', function () {
-  $('#jsonp-return-path-group').toggle($(this).val().endsWith(':rp'));
+  const formula = $(this).val();
+  $('#jsonp-return-path-group').toggle(formula.endsWith(':rp'));
+  // Keep amount format in sync with formula so they don't mismatch
+  if (formula.includes(':cen:') || formula.endsWith(':cen')) {
+    $('#amt-cents').prop('checked', true);
+  } else if (formula.includes(':dec:') || formula.endsWith(':dec')) {
+    $('#amt-decimal').prop('checked', true);
+  }
 });
 
 function getMode() {
