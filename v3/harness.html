@@ -9,7 +9,7 @@
     <link href="harness.css" rel="stylesheet">
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div class="row row-margin">
         <div class="col-md-12">
           <h2 class="row-margin">Fat Zebra V3 Hosted Payment Page</h2>
@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-5">
+        <div class="col-md-4">
           <form id="v3-form">
             <h4>Credentials</h4>
             <hr/>
@@ -106,13 +106,14 @@
           </form>
         </div>
 
-        <div class="col-md-7">
+        <div class="col-md-8">
           <h4 class="row-margin">Generated URL</h4>
           <div class="row row-margin button-controls">
             <div class="col-md-12">
               <button type="button" class="btn btn-outline-primary" id="generate">Generate URL</button>
               <button type="button" class="btn btn-success" id="open-page" disabled>Open Payment Page</button>
               <button type="button" class="btn btn-outline-info" id="load-iframe" disabled>Load in iFrame</button>
+              <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#test-card-modal">View Test Cards</button>
             </div>
           </div>
           <div class="row row-margin">
@@ -130,15 +131,43 @@
               <div id="url-error" class="alert alert-danger mt-3" style="display:none;"></div>
             </div>
           </div>
+          <div id="iframe-container" class="row row-margin" style="display:none;">
+            <div class="col-md-12">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">iFrame Preview</h4>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="clear-iframe">Clear</button>
+              </div>
+              <iframe id="fz-iframe" src="" frameborder="0" style="width:100%; height:600px; border:1px solid #dee2e6; border-radius:4px;"></iframe>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="iframe-container" class="row row-margin" style="display:none;">
-        <div class="col-md-12">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4 class="mb-0">iFrame Preview</h4>
-            <button type="button" class="btn btn-sm btn-outline-danger" id="clear-iframe">Clear</button>
+    </div>
+
+    <div class="modal fade" id="test-card-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="testCardModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="testCardModalLabel">Test Cards</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
-          <iframe id="fz-iframe" src="" frameborder="0" style="width:100%; height:600px; border:1px solid #dee2e6; border-radius:4px;"></iframe>
+          <div class="modal-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Group</th>
+                  <th scope="col">Card Number</th>
+                  <th scope="col">Description</th>
+                </tr>
+              </thead>
+              <tbody id="card-list"></tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
         </div>
       </div>
     </div>

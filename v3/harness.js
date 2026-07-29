@@ -1,3 +1,25 @@
+const testCards = [
+  { number: '4000000000001000', group: '3ds2', description: 'Successful Frictionless Authentication' },
+  { number: '4000000000001026', group: '3ds2', description: 'Attempts Stand-In Frictionless' },
+  { number: '4000000000001034', group: '3ds2', description: 'Unavailable Frictionless' },
+  { number: '4000000000001059', group: '3ds2', description: 'Authentication Not Available on Lookup' },
+  { number: '4000000000001067', group: '3ds2', description: 'Error on Lookup' },
+  { number: '4000000000001075', group: '3ds2', description: 'Timeout on cmpi_lookup' },
+  { number: '4000000000001083', group: '3ds2', description: 'Bypassed Authentication' },
+  { number: '4000000000001018', group: '3ds2', description: 'Failed Frictionless' },
+  { number: '4000000000001042', group: '3ds2', description: 'Rejected Frictionless' },
+  { number: '4000000000001091', group: '3ds2', description: 'Challenge' }
+];
+
+const cardListContainer = $('#card-list');
+
+for (let i = 0; i < testCards.length; i++) {
+  const c = testCards[i];
+  cardListContainer.append(
+    '<tr><td>' + c.group + '</td><td>' + c.number + '</td><td>' + c.description + '</td></tr>'
+  );
+}
+
 function randomString() {
   return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
 }
