@@ -103,13 +103,14 @@ $('#preview').on('click', function () {
     return;
   }
 
-  const amountCents  = Math.round(parseFloat(amountRaw) * 100);
-  const hashInput    = amountCents + ':' + reference + ':' + currency;
-  const verification = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
-  const url          = SANDBOX_URL + '/' + username + '.json';
+  const amountDecimal = parseFloat(amountRaw).toFixed(2);
+  const amountCents   = Math.round(parseFloat(amountRaw) * 100);
+  const hashInput     = amountDecimal + ':' + reference + ':' + currency;
+  const verification  = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
+  const url           = SANDBOX_URL + '/' + username + '.json';
 
   $('#p-url').text(url);
-  $('#p-amount').text(amountCents);
+  $('#p-amount').text(amountDecimal + ' (decimal) / ' + amountCents + ' (cents)');
   $('#p-currency').text(currency);
   $('#p-reference').text(reference);
   $('#p-hash-input').text(hashInput);
@@ -125,7 +126,7 @@ $('#preview').on('click', function () {
       expiry_month:  expiryMonth,
       expiry_year:   expiryYear,
       cvv:           cvv,
-      amount:        amountCents,
+      amount:        amountDecimal,
       currency:      currency,
       reference:     reference,
       verification:  verification,
