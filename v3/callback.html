@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="harness.css" rel="stylesheet">
+    <style>
+      .param-label { font-weight: 600; color: #555; }
+      .result-banner { font-size: 1.25rem; }
+      .mono { font-family: monospace; }
+      pre { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 12px; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row row-margin">
+        <div class="col-md-12">
+          <h2 class="row-margin">Fat Zebra V3 — Payment Callback</h2>
+          <p class="text-muted">
+            <a href="harness.html">&larr; Back to harness</a>
+          </p>
+        </div>
+      </div>
+
+      <div id="result-banner" class="row row-margin">
+        <div class="col-md-12">
+          <div id="result-alert" class="alert result-banner" role="alert"></div>
+        </div>
+      </div>
+
+      <div class="row row-margin">
+        <div class="col-md-6">
+
+          <div class="card mb-3">
+            <div class="card-header">Transaction</div>
+            <div class="card-body p-0">
+              <table class="table table-sm mb-0">
+                <tbody id="transaction-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">Card</div>
+            <div class="card-body p-0">
+              <table class="table table-sm mb-0">
+                <tbody id="card-table"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-md-6">
+
+          <div class="card mb-3" id="token-card">
+            <div class="card-header">Token &amp; Verification</div>
+            <div class="card-body p-0">
+              <table class="table table-sm mb-0">
+                <tbody id="token-table"></tbody>
+              </table>
+            </div>
+            <div class="card-footer text-muted" style="font-size:0.8rem;">
+              Verify the <code>v</code> hash server-side: <code>HMAC-MD5(sharedSecret, "r:successful:amount:currency:id:token")</code>
+            </div>
+          </div>
+
+          <div class="card mb-3">
+            <div class="card-header">All Parameters</div>
+            <div class="card-body p-2">
+              <pre id="raw-params"></pre>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = Object.fromEntries(new URLSearchParams(window.location.search));
+
+      // Result banner
+      const successful = params.successful === 'true';
+      const alert = document.getElementById('result-alert');
+      alert.classList.add(successful ? 'alert-success' : 'alert-danger');
+      alert.innerHTML = successful
+        ? '<strong>&#10003; Payment Successful</strong> &mdash; ' + (params.message || '') +
+          ' &mdash; <span class="mono">' + (params.currency || '') + ' ' + (params.decimal_amount || params.amount || '') + '</span>'
+        : '<strong>&#10007; Payment Failed</strong> &mdash; ' + (params.message || 'No message returned');
+
+      function row(label, value, mono) {
+        if (!value && value !== 0) return '';
+        return '<tr><td class="param-label">' + label + '</td><td class="' + (mono ? 'mono' : '') + '">' + value + '</td></tr>';
+      }
+
+      // Transaction table
+      document.getElementById('transaction-table').innerHTML =
+        row('Transaction ID',   params.id,              true)  +
+        row('Receipt Number',   params.receipt_number,  true)  +
+        row('Reference',        params.reference,       true)  +
+        row('Auth Code',        params.auth,            true)  +
+        row('Response Code',    params.r,               false) +
+        row('Amount',           (params.currency || '') + ' ' + (params.decimal_amount || params.amount || ''), false) +
+        row('Settlement Date',  params.settlement_date, false) +
+        row('Timestamp',        params.timestamp,       false);
+
+      // Card table
+      document.getElementById('card-table').innerHTML =
+        row('Card Holder',    params.card_holder,      false) +
+        row('Card Number',    params.card_number,      true)  +
+        row('Card Type',      params.card_type,        false) +
+        row('Category',       params.card_category,    false) +
+        row('Sub-category',   params.card_subcategory, false) +
+        row('Expiry',         params.card_expiry,      true)  +
+        row('Email',          params.email,            false);
+
+      // Token & verification table
+      document.getElementById('token-table').innerHTML =
+        row('Token', params.token, true) +
+        row('Verification (v)', params.v, true);
+
+      // Raw params
+      document.getElementById('raw-params').textContent =
+        JSON.stringify(params, null, 2);
+    </script>
+  </body>
+</html>

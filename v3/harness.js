@@ -21,6 +21,7 @@ for (let i = 0; i < testCards.length; i++) {
 }
 
 $('#reference').val(crypto.randomUUID());
+$('#return_path').val(window.location.href.replace('harness.html', 'callback.html'));
 
 const SANDBOX_BASE = 'https://paynow.pmnts-sandbox.io/v3';
 
