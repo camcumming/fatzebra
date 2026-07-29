@@ -1,43 +1,60 @@
+/* ── Mobile-first base (all screen sizes) ───────────────────────────── */
+
 .row-margin {
-  margin-top: 20px;
+  margin-top: 12px;
 }
 
 .button-controls {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
-/* Mono text: always break long values (hashes, UUIDs, URLs) */
-.mono {
-  word-break: break-all;
-}
-
-/* Buttons: gap when they wrap onto multiple lines */
+/* Gap between buttons when they wrap */
 .button-controls .btn {
   margin-bottom: 0.375rem;
   margin-right: 0.375rem;
 }
 
-/* Navbar: allow items to wrap on very small screens rather than clipping */
+/* Long mono values (hashes, UUIDs, URLs) must wrap rather than overflow */
+.mono {
+  word-break: break-all;
+}
+
+/* Navbar items wrap gracefully on narrow screens */
 .navbar .navbar-nav {
   flex-wrap: wrap;
 }
 
-@media (max-width: 575.98px) {
-  /* Tighter vertical rhythm on phones */
+/* Section headings: compact on mobile */
+h4 {
+  font-size: 1.1rem;
+  margin-top: 0.25rem;
+}
+
+/* Containers: tighter edge padding on phones */
+.container-fluid,
+.container {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* ── Tablet and up (≥ 576 px) ────────────────────────────────────────── */
+@media (min-width: 576px) {
   .row-margin {
-    margin-top: 12px;
+    margin-top: 20px;
   }
 
-  /* Less horizontal padding inside containers */
+  .button-controls {
+    margin-bottom: 10px;
+  }
+
+  h4 {
+    font-size: 1.5rem;
+    margin-top: 0;
+  }
+
   .container-fluid,
   .container {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
-  /* h4 section headings: tighter */
-  h4 {
-    font-size: 1.1rem;
-    margin-top: 0.5rem;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }

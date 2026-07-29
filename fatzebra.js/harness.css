@@ -1,21 +1,26 @@
+/* ── Mobile-first base (all screen sizes) ───────────────────────────── */
+
 .container {
   padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .button-controls {
-  margin-left: 10px;
+  margin-left: 0;
 }
 
 .button-controls .btn {
-  margin-right: 10px;
+  margin-right: 0.375rem;
   margin-bottom: 0.375rem;
 }
 
-/* Navbar: allow items to wrap on very small screens */
+/* Navbar items wrap gracefully on narrow screens */
 .navbar .navbar-nav {
   flex-wrap: wrap;
 }
 
+/* Iframe: fluid width, constrained height for mobile */
 #fz-iframe {
   background-image: url('placeholder.png');
   background-repeat: no-repeat;
@@ -24,34 +29,47 @@
   padding: 0;
   width: 100%;
   max-width: 600px;
-  height: 600px;
+  height: 420px;
 }
 
 iframe {
   width: 100%;
   max-width: 600px;
-  height: 600px;
-  padding: 20px 10px;
+  height: 420px;
+  padding: 10px;
+}
+
+h4 {
+  font-size: 1.1rem;
+  margin-top: 0.25rem;
 }
 
 .row-margin {
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
-@media (max-width: 575.98px) {
+/* ── Tablet and up (≥ 576 px) ────────────────────────────────────────── */
+@media (min-width: 576px) {
   .container {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .button-controls {
+    margin-left: 10px;
+  }
+
+  #fz-iframe,
+  iframe {
+    height: 600px;
   }
 
   h4 {
-    font-size: 1.1rem;
-    margin-top: 0.5rem;
+    font-size: 1.5rem;
+    margin-top: 0;
   }
 
-  /* Shorter iframe on phone portrait */
-  #fz-iframe,
-  iframe {
-    height: 480px;
+  .row-margin {
+    margin-bottom: 15px;
   }
 }
