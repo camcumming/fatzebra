@@ -1,19 +1,22 @@
 /* ── Mobile-first base (all screen sizes) ───────────────────────────── */
 
-.container,
-.container-fluid {
-  padding-top: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
+.row-margin {
+  margin-top: 12px;
 }
 
 .button-controls {
-  margin-left: 0;
+  margin-bottom: 8px;
 }
 
+/* Gap between buttons when they wrap */
 .button-controls .btn {
-  margin-right: 0.375rem;
   margin-bottom: 0.375rem;
+  margin-right: 0.375rem;
+}
+
+/* Long mono values (hashes, UUIDs, URLs) must wrap rather than overflow */
+.mono {
+  word-break: break-all;
 }
 
 /* Navbar wraps gracefully on narrow screens */
@@ -24,13 +27,24 @@
   flex-wrap: wrap;
 }
 
-/* Iframe: fluid width, constrained height for mobile */
+/* Section headings: compact on mobile */
+h4 {
+  font-size: 1.1rem;
+  margin-top: 0.25rem;
+}
+
+/* Containers: tighter edge padding on phones */
+.container-fluid,
+.container {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* SDK iframe container — placeholder until FZ SDK renders into it */
 #fz-iframe {
   background-image: url('placeholder.png');
   background-repeat: no-repeat;
   background-size: cover;
-  margin: 0;
-  padding: 0;
   width: 100%;
   max-width: 600px;
   height: 420px;
@@ -40,33 +54,16 @@ iframe {
   width: 100%;
   max-width: 600px;
   height: 420px;
-  padding: 10px;
-}
-
-h4 {
-  font-size: 1.1rem;
-  margin-top: 0.25rem;
-}
-
-.row-margin {
-  margin-bottom: 10px;
 }
 
 /* ── Tablet and up (≥ 576 px) ────────────────────────────────────────── */
 @media (min-width: 576px) {
-  .container,
-  .container-fluid {
-    padding-left: 15px;
-    padding-right: 15px;
+  .row-margin {
+    margin-top: 20px;
   }
 
   .button-controls {
-    margin-left: 10px;
-  }
-
-  #fz-iframe,
-  iframe {
-    height: 600px;
+    margin-bottom: 10px;
   }
 
   h4 {
@@ -74,7 +71,14 @@ h4 {
     margin-top: 0;
   }
 
-  .row-margin {
-    margin-bottom: 15px;
+  .container-fluid,
+  .container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  #fz-iframe,
+  iframe {
+    height: 600px;
   }
 }
