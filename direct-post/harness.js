@@ -105,7 +105,7 @@ $('#preview').on('click', function () {
 
   const amountDecimal = parseFloat(amountRaw).toFixed(2);
   const amountCents   = Math.round(parseFloat(amountRaw) * 100);
-  const hashInput     = amountDecimal + ':' + reference + ':' + currency;
+  const hashInput     = reference + ':' + amountDecimal + ':' + currency;
   const verification  = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
   const url           = SANDBOX_URL + '/' + username + '.json';
 
