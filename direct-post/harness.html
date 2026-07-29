@@ -7,15 +7,20 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-md5.js"></script>
     <link href="../v3/harness.css" rel="stylesheet">
+    <style>
+      .mono { font-family: monospace; font-size: 0.85rem; word-break: break-all; }
+      #response-panel { display: none; }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
       <div class="row row-margin">
         <div class="col-md-12">
-          <h2 class="row-margin">Fat Zebra — Direct Post</h2>
+          <h2 class="row-margin">Fat Zebra — Direct Post (JSONP)</h2>
           <p class="text-muted">
-            Card details are entered on this form and posted directly to
+            Card details are submitted via a JSONP request to
             <code>gateway.pmnts-sandbox.io/v2/purchases/direct/…</code>.
+            The response is handled in-page — no page navigation occurs.
             The verification hash is computed client-side here for testing only —
             in production this must be computed server-side to protect the shared secret.
           </p>
@@ -23,101 +28,104 @@
       </div>
 
       <div class="row">
-        <!-- Left column: all form inputs -->
+        <!-- Left column: inputs -->
         <div class="col-md-5">
-          <form id="dp-form" method="POST">
-            <!-- Hidden fields populated by JS before submit -->
-            <input type="hidden" name="amount"       id="h-amount">
-            <input type="hidden" name="currency"     id="h-currency">
-            <input type="hidden" name="reference"    id="h-reference">
-            <input type="hidden" name="return_path"  id="h-return_path">
-            <input type="hidden" name="verification" id="h-verification">
+          <h4>Credentials</h4>
+          <hr/>
+          <div class="form-group">
+            <label for="username">username</label>
+            <input type="text" id="username" class="form-control" value="">
+          </div>
+          <div class="form-group">
+            <label for="sharedSecret">sharedSecret</label>
+            <input type="text" id="sharedSecret" class="form-control" value="">
+            <small id="creds-saved-note" class="text-muted mt-1" style="display:none;">
+              Credentials restored from saved cookie. <a href="#" id="clear-creds">Clear</a>
+            </small>
+          </div>
 
-            <h4>Credentials</h4>
-            <hr/>
-            <div class="form-group">
-              <label for="username">username</label>
-              <input type="text" id="username" class="form-control" value="">
-            </div>
-            <div class="form-group">
-              <label for="sharedSecret">sharedSecret</label>
-              <input type="text" id="sharedSecret" class="form-control" value="">
-              <small id="creds-saved-note" class="text-muted mt-1" style="display:none;">
-                Credentials restored from saved cookie. <a href="#" id="clear-creds">Clear</a>
-              </small>
-            </div>
+          <h4>Payment</h4>
+          <hr/>
+          <div class="form-group">
+            <label for="amount">amount (decimal, e.g. 1.00)</label>
+            <input type="text" id="amount" class="form-control" value="1.00">
+          </div>
+          <div class="form-group">
+            <label for="currency">currency</label>
+            <input type="text" id="currency" class="form-control" value="AUD">
+          </div>
+          <div class="form-group">
+            <label for="reference">reference</label>
+            <input type="text" id="reference" class="form-control" value="">
+          </div>
 
-            <h4>Payment</h4>
-            <hr/>
-            <div class="form-group">
-              <label for="amount">amount (decimal, e.g. 1.00)</label>
-              <input type="text" id="amount" class="form-control" value="1.00">
+          <h4>Card Details</h4>
+          <hr/>
+          <div class="form-group">
+            <label for="card_holder">card_holder</label>
+            <input type="text" id="card_holder" class="form-control" value="Test Card">
+          </div>
+          <div class="form-group">
+            <label for="card_number">card_number</label>
+            <input type="text" id="card_number" class="form-control" placeholder="4111111111111111">
+          </div>
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="expiry_month">expiry_month</label>
+              <input type="text" id="expiry_month" class="form-control" value="12" maxlength="2" placeholder="12">
             </div>
-            <div class="form-group">
-              <label for="currency">currency</label>
-              <input type="text" id="currency" class="form-control" value="AUD">
+            <div class="form-group col-4">
+              <label for="expiry_year">expiry_year</label>
+              <input type="text" id="expiry_year" class="form-control" value="2029" maxlength="4" placeholder="2029">
             </div>
-            <div class="form-group">
-              <label for="reference">reference</label>
-              <input type="text" id="reference" class="form-control" value="">
+            <div class="form-group col-4">
+              <label for="cvv">cvv</label>
+              <input type="text" id="cvv" class="form-control" value="123" maxlength="4" placeholder="123">
             </div>
-            <div class="form-group">
-              <label for="return_path">return_path</label>
-              <input type="text" id="return_path" class="form-control" value="">
-            </div>
-
-            <h4>Card Details</h4>
-            <hr/>
-            <div class="form-group">
-              <label for="card_holder">card_holder</label>
-              <input type="text" id="card_holder" name="card_holder" class="form-control" value="Test Card">
-            </div>
-            <div class="form-group">
-              <label for="card_number">card_number</label>
-              <input type="text" id="card_number" name="card_number" class="form-control" placeholder="4111111111111111">
-            </div>
-            <div class="form-row">
-              <div class="form-group col-4">
-                <label for="expiry_month">expiry_month</label>
-                <input type="text" id="expiry_month" name="expiry_month" class="form-control" value="12" maxlength="2" placeholder="12">
-              </div>
-              <div class="form-group col-4">
-                <label for="expiry_year">expiry_year</label>
-                <input type="text" id="expiry_year" name="expiry_year" class="form-control" value="2029" maxlength="4" placeholder="2029">
-              </div>
-              <div class="form-group col-4">
-                <label for="cvv">cvv</label>
-                <input type="text" id="cvv" name="cvv" class="form-control" value="123" maxlength="4" placeholder="123">
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
 
-        <!-- Right column: preview and submit -->
+        <!-- Right column: preview, submit, response -->
         <div class="col-md-7">
           <h4 class="row-margin">Preview &amp; Submit</h4>
           <div class="row row-margin button-controls">
             <div class="col-md-12">
-              <button type="button" class="btn btn-outline-primary" id="preview">Preview</button>
-              <button type="button" class="btn btn-success"         id="submit-payment" disabled>Submit Payment</button>
-              <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#test-card-modal">View Test Cards</button>
+              <button type="button" class="btn btn-outline-primary"    id="preview">Preview</button>
+              <button type="button" class="btn btn-success"            id="submit-btn" disabled>Submit</button>
+              <button type="button" class="btn btn-outline-secondary"  data-toggle="modal" data-target="#test-card-modal">View Test Cards</button>
             </div>
           </div>
 
           <div id="preview-error" class="alert alert-danger mt-3" style="display:none;"></div>
 
+          <!-- Request preview table -->
           <div id="preview-display" class="mt-3" style="display:none;">
+            <h6 class="text-muted">Request</h6>
             <table class="table table-sm table-bordered">
               <tbody>
-                <tr><th style="width:35%">Form action</th>  <td class="mono" id="p-action"></td></tr>
+                <tr><th style="width:35%">URL</th>          <td class="mono" id="p-url"></td></tr>
                 <tr><th>amount (cents)</th>                 <td class="mono" id="p-amount"></td></tr>
                 <tr><th>currency</th>                       <td class="mono" id="p-currency"></td></tr>
                 <tr><th>reference</th>                      <td class="mono" id="p-reference"></td></tr>
-                <tr><th>return_path</th>                    <td class="mono" id="p-return-path"></td></tr>
                 <tr><th>hash input</th>                     <td class="mono" id="p-hash-input"></td></tr>
                 <tr><th>verification</th>                   <td class="mono" id="p-verification"></td></tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Response panel -->
+          <div id="response-panel" class="mt-3">
+            <h6 class="text-muted">Response</h6>
+            <div id="response-banner" class="alert"></div>
+            <table class="table table-sm table-bordered" id="response-table">
+              <tbody id="response-tbody"></tbody>
+            </table>
+            <div class="card">
+              <div class="card-header">Raw response</div>
+              <div class="card-body p-2">
+                <pre id="response-raw" style="margin:0; font-size:0.8rem; white-space:pre-wrap; word-break:break-all;"></pre>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -134,8 +142,8 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="text-muted">Use expiry <strong>12/2029</strong> and CVV <strong>123</strong> (4-digit CVV for Amex).</p>
-            <table class="table table-sm">
+            <p class="text-muted">Use expiry <strong>12/2029</strong> and CVV <strong>123</strong> (4-digit CVV for Amex). Click a card number to populate the form.</p>
+            <table class="table table-sm table-hover">
               <thead>
                 <tr>
                   <th>Network</th>
@@ -152,10 +160,6 @@
         </div>
       </div>
     </div>
-
-    <style>
-      .mono { font-family: monospace; font-size: 0.85rem; word-break: break-all; }
-    </style>
   </body>
   <footer>
     <script src="harness.js"></script>
