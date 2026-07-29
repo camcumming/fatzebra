@@ -13,7 +13,7 @@
       <div class="row row-margin">
         <div class="col-md-12">
           <h2 class="row-margin">Fat Zebra V3 Hosted Payment Page</h2>
-          <p class="text-muted">Redirects the customer to <code>paynow.pmnts-sandbox.io/v3/...</code> — no iframe, no cross-site cookie issues.</p>
+          <p class="text-muted">Redirects the customer to <code>paynow.pmnts-sandbox.io/v3/...</code>. Use the redirect or new-tab approach to avoid cross-site cookie issues; the iframe option embeds the page but may reintroduce them.</p>
         </div>
       </div>
       <div class="row">
@@ -99,6 +99,10 @@
               <input type="checkbox" class="form-check-input" id="postmessage">
               <label class="form-check-label" for="postmessage">postmessage</label>
             </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="iframe">
+              <label class="form-check-label" for="iframe">iframe (stripped layout for embedding)</label>
+            </div>
           </form>
         </div>
 
@@ -108,6 +112,7 @@
             <div class="col-md-12">
               <button type="button" class="btn btn-outline-primary" id="generate">Generate URL</button>
               <button type="button" class="btn btn-success" id="open-page" disabled>Open Payment Page</button>
+              <button type="button" class="btn btn-outline-secondary" id="load-iframe" disabled>Load in iFrame</button>
             </div>
           </div>
           <div class="row row-margin">
@@ -125,6 +130,15 @@
               <div id="url-error" class="alert alert-danger mt-3" style="display:none;"></div>
             </div>
           </div>
+        </div>
+      </div>
+      <div id="iframe-container" class="row row-margin" style="display:none;">
+        <div class="col-md-12">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="mb-0">iFrame Preview</h4>
+            <button type="button" class="btn btn-sm btn-outline-danger" id="clear-iframe">Clear</button>
+          </div>
+          <iframe id="fz-iframe" src="" frameborder="0" style="width:100%; height:600px; border:1px solid #dee2e6; border-radius:4px;"></iframe>
         </div>
       </div>
     </div>

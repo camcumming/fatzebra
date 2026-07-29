@@ -37,6 +37,7 @@ function buildUrl(username, reference, currency, amount, hash) {
   if ($('#hide_button').is(':checked'))    params.set('hide_button', 'true');
   if ($('#surcharge').is(':checked'))      params.set('surcharge', 'true');
   if ($('#postmessage').is(':checked'))    params.set('postmessage', 'true');
+  if ($('#iframe').is(':checked'))         params.set('iframe', 'true');
 
   const queryString = params.toString();
   if (queryString) url += '?' + queryString;
@@ -54,6 +55,7 @@ $('#generate').click(function () {
   $('#url-error').hide();
   $('#url-display').hide();
   $('#open-page').prop('disabled', true);
+  $('#load-iframe').prop('disabled', true);
   generatedUrl = null;
 
   const errors = [];
@@ -77,10 +79,23 @@ $('#generate').click(function () {
   $('#hash-input-display').text(hashInput);
   $('#url-display').show();
   $('#open-page').prop('disabled', false);
+  $('#load-iframe').prop('disabled', false);
 });
 
 $('#open-page').click(function () {
   if (generatedUrl) window.open(generatedUrl, '_blank');
+});
+
+$('#load-iframe').click(function () {
+  if (!generatedUrl) return;
+  $('#fz-iframe').attr('src', generatedUrl);
+  $('#iframe-container').show();
+  $('html, body').animate({ scrollTop: $('#iframe-container').offset().top - 20 }, 400);
+});
+
+$('#clear-iframe').click(function () {
+  $('#fz-iframe').attr('src', '');
+  $('#iframe-container').hide();
 });
 
 $('#copy-url').click(function () {
