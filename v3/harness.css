@@ -5,3 +5,39 @@
 .button-controls {
   margin-bottom: 10px;
 }
+
+/* Mono text: always break long values (hashes, UUIDs, URLs) */
+.mono {
+  word-break: break-all;
+}
+
+/* Buttons: gap when they wrap onto multiple lines */
+.button-controls .btn {
+  margin-bottom: 0.375rem;
+  margin-right: 0.375rem;
+}
+
+/* Navbar: allow items to wrap on very small screens rather than clipping */
+.navbar .navbar-nav {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 575.98px) {
+  /* Tighter vertical rhythm on phones */
+  .row-margin {
+    margin-top: 12px;
+  }
+
+  /* Less horizontal padding inside containers */
+  .container-fluid,
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /* h4 section headings: tighter */
+  h4 {
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+  }
+}
