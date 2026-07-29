@@ -1,23 +1,32 @@
 const testCards = [
-  { number: '4000000000001000', group: '3ds2', description: 'Successful Frictionless Authentication' },
-  { number: '4000000000001026', group: '3ds2', description: 'Attempts Stand-In Frictionless' },
-  { number: '4000000000001034', group: '3ds2', description: 'Unavailable Frictionless' },
-  { number: '4000000000001059', group: '3ds2', description: 'Authentication Not Available on Lookup' },
-  { number: '4000000000001067', group: '3ds2', description: 'Error on Lookup' },
-  { number: '4000000000001075', group: '3ds2', description: 'Timeout on cmpi_lookup' },
-  { number: '4000000000001083', group: '3ds2', description: 'Bypassed Authentication' },
-  { number: '4000000000001018', group: '3ds2', description: 'Failed Frictionless' },
-  { number: '4000000000001042', group: '3ds2', description: 'Rejected Frictionless' },
-  { number: '4000000000001091', group: '3ds2', description: 'Challenge' }
+  { network: 'Visa',       number: '4000000000001000', scenario: '3DS2 Frictionless — Successful Authentication' },
+  { network: 'Mastercard', number: '5200000000001005', scenario: '3DS2 Frictionless — Successful Authentication' },
+  { network: 'Amex',       number: '340000000001007',  scenario: '3DS2 Frictionless — Successful Authentication' },
+  { network: 'Visa',       number: '4000000000001026', scenario: '3DS2 Frictionless — Attempts Stand-In' },
+  { network: 'Mastercard', number: '5200000000001021', scenario: '3DS2 Frictionless — Attempts Stand-In' },
+  { network: 'Amex',       number: '340000000001023',  scenario: '3DS2 Frictionless — Attempts Stand-In' },
+  { network: 'Visa',       number: '4000000000001091', scenario: '3DS2 — Challenge Required' },
+  { network: 'Mastercard', number: '5200000000001096', scenario: '3DS2 — Challenge Required' },
+  { network: 'Amex',       number: '340000000001098',  scenario: '3DS2 — Challenge Required' },
+  { network: 'Visa',       number: '4000000000001018', scenario: '3DS2 Frictionless — Failed Authentication' },
+  { network: 'Visa',       number: '4000000000001042', scenario: '3DS2 Frictionless — Rejected Authentication' },
 ];
 
 const cardListContainer = $('#card-list');
 for (let i = 0; i < testCards.length; i++) {
   const c = testCards[i];
   cardListContainer.append(
-    '<tr><td>' + c.group + '</td><td>' + c.number + '</td><td>' + c.description + '</td></tr>'
+    '<tr style="cursor:pointer" data-number="' + c.number + '">' +
+    '<td>' + c.network + '</td>' +
+    '<td><code>' + c.number + '</code></td>' +
+    '<td>' + c.scenario + '</td></tr>'
   );
 }
+
+$('#card-list').on('click', 'tr', function () {
+  navigator.clipboard.writeText($(this).data('number'));
+  $('#test-card-modal').modal('hide');
+});
 
 const CREDS_COOKIE = 'fz_v3_creds';
 
