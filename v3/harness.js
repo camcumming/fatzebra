@@ -20,8 +20,34 @@ for (let i = 0; i < testCards.length; i++) {
   );
 }
 
+const CREDS_COOKIE = 'fz_v3_creds';
+
+function saveCreds(username, sharedSecret) {
+  const value = encodeURIComponent(JSON.stringify({ username, sharedSecret }));
+  document.cookie = CREDS_COOKIE + '=' + value +
+    '; max-age=3600; Secure; SameSite=Strict; Path=/fatzebra/v3/';
+}
+
+function loadCreds() {
+  const match = document.cookie.split('; ').find(r => r.startsWith(CREDS_COOKIE + '='));
+  if (!match) return null;
+  try { return JSON.parse(decodeURIComponent(match.split('=').slice(1).join('='))); }
+  catch (e) { return null; }
+}
+
+function clearCreds() {
+  document.cookie = CREDS_COOKIE + '=; max-age=0; Secure; SameSite=Strict; Path=/fatzebra/v3/';
+}
+
 $('#reference').val(crypto.randomUUID());
 $('#return_path').val(window.location.href.replace('harness.html', 'callback.html'));
+
+const saved = loadCreds();
+if (saved) {
+  $('#username').val(saved.username);
+  $('#sharedSecret').val(saved.sharedSecret);
+  $('#creds-saved-note').show();
+}
 
 const SANDBOX_BASE = 'https://paynow.pmnts-sandbox.io/v3';
 
@@ -95,12 +121,22 @@ $('#generate').click(function () {
   const hash      = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
   const url       = buildUrl(username, reference, currency, amount, hash);
 
+  saveCreds(username, sharedSecret);
+
   generatedUrl = url;
   $('#generated-url').val(url);
   $('#hash-input-display').text(hashInput);
   $('#url-display').show();
   $('#open-page').prop('disabled', false);
   $('#load-iframe').prop('disabled', false);
+});
+
+$('#clear-creds').on('click', function (e) {
+  e.preventDefault();
+  clearCreds();
+  $('#username').val('');
+  $('#sharedSecret').val('');
+  $('#creds-saved-note').hide();
 });
 
 $('#open-page').click(function () {
