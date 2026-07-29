@@ -175,6 +175,10 @@ for (const option of HPP_PERMITTED_OPTIONS) {
 
 updateCredsStatus();
 
+$('#show-options').on('change', function () {
+  $('#fz-options-wrapper').toggle(this.checked);
+});
+
 const loadHPP = function() {
   const creds        = loadCreds() || {};
   const accessToken  = creds.accessToken || '';

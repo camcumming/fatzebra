@@ -3,13 +3,12 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" >
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-md5.js"></script>
     <script src="https://cdn.pmnts-sandbox.io/sdk/v1/fatzebra.js"></script>
     <link href="harness.css" rel="stylesheet">
-    <!------ Include the above in your HEAD tag ---------->
   </head>
   <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
@@ -23,44 +22,51 @@
         <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#credentials-modal"><i class="fa fa-key" aria-hidden="true"></i> Credentials</a></li>
       </ul>
     </nav>
-    <div class="container">
-      <div id="no-creds-alert" class="alert alert-warning mt-2" role="alert" style="display:none;">
+    <div class="container-fluid">
+      <div class="row row-margin">
+        <div class="col-md-12">
+          <h2 class="row-margin">Fat Zebra — JS SDK</h2>
+        </div>
+      </div>
+      <div id="no-creds-alert" class="alert alert-warning mx-2" role="alert" style="display:none;">
         <strong>No credentials set.</strong>
         Tap <strong>Credentials</strong> in the nav bar to enter your accessToken, username, and shared secret.
       </div>
       <div class="row">
         <div class="col-md-5">
-          <div class="row row-margin">
-            <h2 class='row-margin'>Fatzebra JS Configuration</h2>
-            <div class="col-md-6">
-              <form id="sdk-options" class="form-horizontal" role="form"></form>
-            </div>
-            <div class="col-md-6">
-              <form id="paynow-options" class="form-horizontal" role="form">
-                <h4>HPP Options</h4>
-                <hr/>
-              </form>
-            </div>
+          <form id="sdk-options" class="form-horizontal" role="form"></form>
+
+          <div class="form-check mt-2 mb-1">
+            <input class="form-check-input" type="checkbox" id="show-options">
+            <label class="form-check-label text-muted" for="show-options">Show Options</label>
+          </div>
+          <div id="fz-options-wrapper" style="display:none;">
+            <form id="paynow-options" class="form-horizontal" role="form">
+              <h4>HPP Options</h4>
+              <hr/>
+            </form>
           </div>
         </div>
+
         <div class="col-md-7">
-          <h2 class='row-margin'>Payments Form</h2>
+          <h4 class="row-margin">Payments Form</h4>
           <div class="row row-margin button-controls">
-            <div class='col-md-12'>
-              <button type='button' class='btn btn-outline-danger' id='reset'>Reset</button>
-              <button type='button' class='btn btn-outline-primary' id='load-hpp'>Load Payments Page</button>
-              <button type='button' class='btn btn-outline-info' data-toggle='modal' data-target='#test-card-modal'>View Test Cards</button>
+            <div class="col-md-12">
+              <button type="button" class="btn btn-outline-danger" id="reset">Reset</button>
+              <button type="button" class="btn btn-outline-primary" id="load-hpp">Load Payments Page</button>
+              <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#test-card-modal">View Test Cards</button>
             </div>
           </div>
-          <div class='row'>
-            <div class='col-md-12'>
+          <div class="row">
+            <div class="col-md-12">
               <br/>
-              <div id='fz-iframe'></div>
+              <div id="fz-iframe"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="modal fade" id="test-card-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
@@ -81,7 +87,7 @@
                     <th>Scenario</th>
                   </tr>
                 </thead>
-                <tbody id='card-list'></tbody>
+                <tbody id="card-list"></tbody>
               </table>
             </div>
           </div>
@@ -125,9 +131,8 @@
       </div>
     </div>
   </body>
-
   <footer>
-    <script src="harness.js?v=2"></script>
+    <script src="harness.js?v=3"></script>
     <script>
     </script>
   </footer>

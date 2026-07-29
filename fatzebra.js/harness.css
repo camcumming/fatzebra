@@ -1,6 +1,7 @@
 /* ── Mobile-first base (all screen sizes) ───────────────────────────── */
 
-.container {
+.container,
+.container-fluid {
   padding-top: 10px;
   padding-left: 10px;
   padding-right: 10px;
@@ -53,7 +54,8 @@ h4 {
 
 /* ── Tablet and up (≥ 576 px) ────────────────────────────────────────── */
 @media (min-width: 576px) {
-  .container {
+  .container,
+  .container-fluid {
     padding-left: 15px;
     padding-right: 15px;
   }
