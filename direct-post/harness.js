@@ -104,7 +104,7 @@ $('#preview').on('click', function () {
   }
 
   const amountCents  = Math.round(parseFloat(amountRaw) * 100);
-  const hashInput    = reference + ':' + amountCents + ':' + currency;
+  const hashInput    = amountCents + ':' + reference + ':' + currency;
   const verification = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
   const url          = SANDBOX_URL + '/' + username + '.json';
 
