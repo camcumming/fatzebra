@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/hmac-md5.js"></script>
+    <link href="harness.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row row-margin">
+        <div class="col-md-12">
+          <h2 class="row-margin">Fat Zebra V3 Hosted Payment Page</h2>
+          <p class="text-muted">Redirects the customer to <code>paynow.pmnts-sandbox.io/v3/...</code> — no iframe, no cross-site cookie issues.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-5">
+          <form id="v3-form">
+            <h4>Credentials</h4>
+            <hr/>
+            <div class="form-group">
+              <label for="username">username</label>
+              <input type="text" id="username" class="form-control" value="">
+            </div>
+            <div class="form-group">
+              <label for="sharedSecret">sharedSecret</label>
+              <input type="text" id="sharedSecret" class="form-control" value="">
+            </div>
+
+            <h4>Payment</h4>
+            <hr/>
+            <div class="form-group">
+              <label for="amount">amount (decimal, e.g. 1.00)</label>
+              <input type="text" id="amount" class="form-control" value="1.00">
+            </div>
+            <div class="form-group">
+              <label for="currency">currency</label>
+              <input type="text" id="currency" class="form-control" value="AUD">
+            </div>
+            <div class="form-group">
+              <label for="reference">reference</label>
+              <input type="text" id="reference" class="form-control" value="">
+            </div>
+
+            <h4>Options</h4>
+            <hr/>
+            <div class="form-group">
+              <label for="return_path">return_path</label>
+              <input type="text" id="return_path" class="form-control" placeholder="https://yoursite.com/payment/callback">
+            </div>
+            <div class="form-group">
+              <label for="button_text">button_text</label>
+              <input type="text" id="button_text" class="form-control" placeholder="Pay Now">
+            </div>
+            <div class="form-group">
+              <label for="cards">cards</label>
+              <input type="text" id="cards" class="form-control" placeholder="VISA,MASTERCARD">
+            </div>
+            <div class="form-group">
+              <label for="logo_url">logo_url</label>
+              <input type="text" id="logo_url" class="form-control" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label for="css">css</label>
+              <input type="text" id="css" class="form-control" placeholder="https://...">
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="tokenize_only">
+              <label class="form-check-label" for="tokenize_only">tokenize_only</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="auth">
+              <label class="form-check-label" for="auth">auth</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="show_email" checked>
+              <label class="form-check-label" for="show_email">show_email</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="show_extras" checked>
+              <label class="form-check-label" for="show_extras">show_extras</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="hide_card_holder">
+              <label class="form-check-label" for="hide_card_holder">hide_card_holder</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="hide_button">
+              <label class="form-check-label" for="hide_button">hide_button</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="surcharge">
+              <label class="form-check-label" for="surcharge">surcharge</label>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="postmessage">
+              <label class="form-check-label" for="postmessage">postmessage</label>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-md-7">
+          <h4 class="row-margin">Generated URL</h4>
+          <div class="row row-margin button-controls">
+            <div class="col-md-12">
+              <button type="button" class="btn btn-outline-primary" id="generate">Generate URL</button>
+              <button type="button" class="btn btn-success" id="open-page" disabled>Open Payment Page</button>
+            </div>
+          </div>
+          <div class="row row-margin">
+            <div class="col-md-12">
+              <div id="url-display" class="mt-3" style="display:none;">
+                <label>URL</label>
+                <div class="input-group">
+                  <input type="text" id="generated-url" class="form-control" readonly>
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" id="copy-url" type="button">Copy</button>
+                  </div>
+                </div>
+                <small class="text-muted mt-1 d-block">Hash input: <code id="hash-input-display"></code></small>
+              </div>
+              <div id="url-error" class="alert alert-danger mt-3" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <footer>
+    <script src="harness.js"></script>
+  </footer>
+</html>

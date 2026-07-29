@@ -172,6 +172,7 @@ const loadHPP = function() {
 
   const fz = new FatZebra({
     username,
+    accessToken,
     test: true
   });
 
