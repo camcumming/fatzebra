@@ -38,14 +38,7 @@
             <h4>Submission Mode</h4>
             <hr/>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="submit-mode" id="mode-newtab" value="newtab" checked>
-              <label class="form-check-label" for="mode-newtab">
-                <strong>New Tab</strong>
-                <small class="text-muted d-block">Opens the payment page in a new browser tab.</small>
-              </label>
-            </div>
-            <div class="form-check mt-2">
-              <input class="form-check-input" type="radio" name="submit-mode" id="mode-redirect" value="redirect">
+              <input class="form-check-input" type="radio" name="submit-mode" id="mode-redirect" value="redirect" checked>
               <label class="form-check-label" for="mode-redirect">
                 <strong>Redirect</strong>
                 <small class="text-muted d-block">Navigates the current tab to the payment page.</small>
@@ -75,6 +68,11 @@
               <input type="text" id="reference" class="form-control" value="">
             </div>
 
+            <div class="form-check mt-2 mb-1">
+              <input class="form-check-input" type="checkbox" id="show-options">
+              <label class="form-check-label text-muted" for="show-options">Show Options</label>
+            </div>
+            <div id="v3-options-wrapper" style="display:none;">
             <h4>Options</h4>
             <hr/>
             <div class="form-group">
@@ -133,6 +131,7 @@
               <input type="checkbox" class="form-check-input" id="postmessage">
               <label class="form-check-label" for="postmessage">postmessage</label>
             </div>
+            </div><!-- /#v3-options-wrapper -->
           </form>
         </div>
 
@@ -141,7 +140,7 @@
           <div class="row row-margin button-controls">
             <div class="col-md-12">
               <button type="button" class="btn btn-outline-primary" id="generate">Generate URL</button>
-              <button type="button" class="btn btn-success" id="action-btn" disabled>Open in New Tab</button>
+              <button type="button" class="btn btn-success" id="action-btn" disabled>Open Payment Page</button>
               <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#test-card-modal">View Test Cards</button>
             </div>
           </div>
@@ -234,6 +233,6 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=3"></script>
+    <script src="harness.js?v=4"></script>
   </footer>
 </html>

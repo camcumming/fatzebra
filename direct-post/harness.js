@@ -92,16 +92,22 @@ $('#hash-formula').on('change', function () {
   }
 });
 
-$('input[name="submit-mode"]').on('change', function () {
-  const mode = $(this).val();
-  if (mode === 'formpost') {
-    $('#formpost-config').show();
-    $('#jsonp-config').hide();
-    $('#response-panel').hide();
-  } else {
+function updateConfigVisibility() {
+  if (!$('#show-options').is(':checked')) {
     $('#formpost-config').hide();
-    $('#jsonp-config').show();
+    $('#jsonp-config').hide();
+    return;
   }
+  const mode = getMode();
+  $('#formpost-config').toggle(mode === 'formpost');
+  $('#jsonp-config').toggle(mode !== 'formpost');
+}
+
+$('#show-options').on('change', updateConfigVisibility);
+
+$('input[name="submit-mode"]').on('change', function () {
+  if (getMode() === 'formpost') $('#response-panel').hide();
+  updateConfigVisibility();
   pendingRequest = null;
   $('#submit-btn').prop('disabled', true);
   $('#preview-display').hide();

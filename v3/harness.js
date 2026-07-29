@@ -82,7 +82,6 @@ const SANDBOX_BASE = 'https://paynow.pmnts-sandbox.io/v3';
 let generatedUrl = null;
 
 const ACTION_LABELS = {
-  newtab:   'Open in New Tab',
   redirect: 'Open Payment Page',
   iframe:   'Load in iFrame',
 };
@@ -101,6 +100,10 @@ $('input[name="submit-mode"]').on('change', function () {
   generatedUrl = null;
   $('#action-btn').prop('disabled', true);
   $('#url-display').hide();
+});
+
+$('#show-options').on('change', function () {
+  $('#v3-options-wrapper').toggle(this.checked);
 });
 
 function buildHashInput(reference, amount, currency) {
@@ -186,9 +189,7 @@ $('#action-btn').click(function () {
   if (!generatedUrl) return;
   const mode = getMode();
 
-  if (mode === 'newtab') {
-    window.open(generatedUrl, '_blank');
-  } else if (mode === 'redirect') {
+  if (mode === 'redirect') {
     window.location.href = generatedUrl;
   } else if (mode === 'iframe') {
     $('#fz-iframe').attr('src', generatedUrl);
