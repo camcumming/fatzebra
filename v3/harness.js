@@ -20,11 +20,7 @@ for (let i = 0; i < testCards.length; i++) {
   );
 }
 
-function randomString() {
-  return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
-}
-
-$('#reference').val(randomString());
+$('#reference').val(crypto.randomUUID());
 
 const SANDBOX_BASE = 'https://paynow.pmnts-sandbox.io/v3';
 
@@ -47,10 +43,12 @@ function buildUrl(username, reference, currency, amount, hash) {
   const params = new URLSearchParams();
 
   if ($('#return_path').val())              params.set('return_path', $('#return_path').val());
+  if ($('#return_target').val())           params.set('return_target', $('#return_target').val());
   if ($('#button_text').val())             params.set('button_text', $('#button_text').val());
   if ($('#cards').val())                   params.set('cards', $('#cards').val());
   if ($('#logo_url').val())                params.set('logo_url', $('#logo_url').val());
   if ($('#css').val())                     params.set('css', $('#css').val());
+  if ($('#css_signature').val())           params.set('css_signature', $('#css_signature').val());
   if ($('#tokenize_only').is(':checked'))  params.set('tokenize_only', 'true');
   if ($('#auth').is(':checked'))           params.set('auth', 'true');
   if (!$('#show_email').is(':checked'))    params.set('show_email', 'false');
