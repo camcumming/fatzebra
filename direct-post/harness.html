@@ -10,26 +10,40 @@
     <style>
       .mono { font-family: monospace; font-size: 0.85rem; word-break: break-all; }
       #response-panel { display: none; }
+      .mode-badge { font-size: 0.75rem; }
     </style>
   </head>
   <body>
     <div class="container-fluid">
       <div class="row row-margin">
         <div class="col-md-12">
-          <h2 class="row-margin">Fat Zebra — Direct Post (JSONP)</h2>
-          <p class="text-muted">
-            Card details are submitted via a JSONP request to
-            <code>gateway.pmnts-sandbox.io/v2/purchases/direct/…</code>.
-            The response is handled in-page — no page navigation occurs.
-            The verification hash is computed client-side here for testing only —
-            in production this must be computed server-side to protect the shared secret.
-          </p>
+          <h2 class="row-margin">Fat Zebra — Direct Post</h2>
         </div>
       </div>
 
       <div class="row">
         <!-- Left column: inputs -->
         <div class="col-md-5">
+
+          <h4>Submission Mode</h4>
+          <hr/>
+          <div class="form-group">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="submit-mode" id="mode-formpost" value="formpost" checked>
+              <label class="form-check-label" for="mode-formpost">
+                <strong>Form POST (redirect)</strong>
+                <small class="text-muted d-block">Browser submits a hidden form; FatZebra redirects to <code>return_path</code> with result parameters.</small>
+              </label>
+            </div>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="radio" name="submit-mode" id="mode-jsonp" value="jsonp">
+              <label class="form-check-label" for="mode-jsonp">
+                <strong>JSONP (in-page)</strong>
+                <small class="text-muted d-block">jQuery AJAX with JSONP; response handled in-page, no navigation.</small>
+              </label>
+            </div>
+          </div>
+
           <h4>Credentials</h4>
           <hr/>
           <div class="form-group">
@@ -57,6 +71,53 @@
           <div class="form-group">
             <label for="reference">reference</label>
             <input type="text" id="reference" class="form-control" value="">
+          </div>
+
+          <!-- Form POST config -->
+          <div id="formpost-config">
+            <h4>Form POST Configuration</h4>
+            <hr/>
+            <div class="form-group">
+              <label for="return_path">return_path</label>
+              <input type="text" id="return_path" class="form-control" value="">
+              <small class="text-muted">Where FatZebra redirects after payment. Auto-set to callback.html.</small>
+            </div>
+            <p class="text-muted small">
+              Hash formula (fixed): <code>HMAC-MD5(secret, "reference:cents:currency:return_path")</code>
+            </p>
+          </div>
+
+          <!-- JSONP config -->
+          <div id="jsonp-config" style="display:none;">
+            <h4>JSONP Configuration</h4>
+            <hr/>
+            <div class="form-group">
+              <label for="hash-formula">Hash input formula</label>
+              <select id="hash-formula" class="form-control">
+                <option value="ref:dec:cur">ref : decimal : currency</option>
+                <option value="ref:cen:cur">ref : cents : currency</option>
+                <option value="dec:ref:cur">decimal : ref : currency</option>
+                <option value="cen:ref:cur">cents : ref : currency</option>
+                <option value="ref:dec:cur:rp">ref : decimal : currency : return_path</option>
+                <option value="ref:cen:cur:rp">ref : cents : currency : return_path</option>
+                <option value="none">(omit verification — diagnostic)</option>
+              </select>
+            </div>
+            <div class="form-group" id="jsonp-return-path-group" style="display:none;">
+              <label for="jsonp_return_path">return_path (included in hash)</label>
+              <input type="text" id="jsonp_return_path" class="form-control" placeholder="leave empty to hash empty string">
+            </div>
+            <div class="form-group">
+              <label>Amount sent in request</label><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="amount-format" id="amt-decimal" value="decimal" checked>
+                <label class="form-check-label" for="amt-decimal">Decimal (e.g. "1.00")</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="amount-format" id="amt-cents" value="cents">
+                <label class="form-check-label" for="amt-cents">Integer cents (e.g. 100)</label>
+              </div>
+            </div>
           </div>
 
           <h4>Card Details</h4>
@@ -100,20 +161,21 @@
 
           <!-- Request preview table -->
           <div id="preview-display" class="mt-3" style="display:none;">
-            <h6 class="text-muted">Request</h6>
+            <h6 class="text-muted">Request <span id="p-mode-badge" class="badge badge-secondary mode-badge"></span></h6>
             <table class="table table-sm table-bordered">
               <tbody>
-                <tr><th style="width:35%">URL</th>          <td class="mono" id="p-url"></td></tr>
-                <tr><th>amount (cents)</th>                 <td class="mono" id="p-amount"></td></tr>
-                <tr><th>currency</th>                       <td class="mono" id="p-currency"></td></tr>
-                <tr><th>reference</th>                      <td class="mono" id="p-reference"></td></tr>
-                <tr><th>hash input</th>                     <td class="mono" id="p-hash-input"></td></tr>
-                <tr><th>verification</th>                   <td class="mono" id="p-verification"></td></tr>
+                <tr><th style="width:38%">URL</th>            <td class="mono" id="p-url"></td></tr>
+                <tr><th>amount in request</th>                <td class="mono" id="p-amount"></td></tr>
+                <tr><th>currency</th>                         <td class="mono" id="p-currency"></td></tr>
+                <tr><th>reference</th>                        <td class="mono" id="p-reference"></td></tr>
+                <tr id="p-return-path-row" style="display:none;"><th>return_path</th><td class="mono" id="p-return-path"></td></tr>
+                <tr><th>hash input</th>                       <td class="mono" id="p-hash-input"></td></tr>
+                <tr id="p-verification-row"><th>verification</th><td class="mono" id="p-verification"></td></tr>
               </tbody>
             </table>
           </div>
 
-          <!-- Response panel -->
+          <!-- Response panel (JSONP only) -->
           <div id="response-panel" class="mt-3">
             <h6 class="text-muted">Response</h6>
             <div id="response-banner" class="alert"></div>
@@ -130,6 +192,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Hidden form for Form POST submission -->
+    <form id="direct-post-form" method="POST" style="display:none;">
+      <input type="hidden" name="card_holder"  id="f-card_holder">
+      <input type="hidden" name="card_number"  id="f-card_number">
+      <input type="hidden" name="expiry_month" id="f-expiry_month">
+      <input type="hidden" name="expiry_year"  id="f-expiry_year">
+      <input type="hidden" name="cvv"          id="f-cvv">
+      <input type="hidden" name="amount"       id="f-amount">
+      <input type="hidden" name="currency"     id="f-currency">
+      <input type="hidden" name="reference"    id="f-reference">
+      <input type="hidden" name="return_path"  id="f-return_path">
+      <input type="hidden" name="verification" id="f-verification">
+    </form>
 
     <!-- Test card modal -->
     <div class="modal fade" id="test-card-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="testCardModalLabel" aria-hidden="true">
@@ -162,6 +238,6 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=5"></script>
+    <script src="harness.js?v=6"></script>
   </footer>
 </html>

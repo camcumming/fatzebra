@@ -23,7 +23,6 @@ for (let i = 0; i < testCards.length; i++) {
   );
 }
 
-// Click a row to populate card_number and close the modal
 $('#card-list').on('click', 'tr', function () {
   $('#card_number').val($(this).data('number'));
   $('#test-card-modal').modal('hide');
@@ -49,6 +48,10 @@ function clearCreds() {
   document.cookie = CREDS_COOKIE + '=; max-age=0; Secure; SameSite=Strict; Path=/fatzebra/direct-post/';
 }
 
+// Auto-set return_path to callback.html alongside harness.html
+const callbackUrl = window.location.href.replace(/harness\.html.*$/, 'callback.html');
+$('#return_path').val(callbackUrl);
+
 $('#reference').val(crypto.randomUUID());
 
 const saved = loadCreds();
@@ -66,6 +69,45 @@ $('#clear-creds').on('click', function (e) {
   $('#creds-saved-note').hide();
 });
 
+// Mode switching
+$('input[name="submit-mode"]').on('change', function () {
+  const mode = $(this).val();
+  if (mode === 'formpost') {
+    $('#formpost-config').show();
+    $('#jsonp-config').hide();
+    $('#response-panel').hide();
+  } else {
+    $('#formpost-config').hide();
+    $('#jsonp-config').show();
+  }
+  pendingRequest = null;
+  $('#submit-btn').prop('disabled', true);
+  $('#preview-display').hide();
+});
+
+// Show/hide return_path field for JSONP formulas that need it
+$('#hash-formula').on('change', function () {
+  const needsRp = $(this).val().endsWith(':rp');
+  $('#jsonp-return-path-group').toggle(needsRp);
+});
+
+function getMode() {
+  return $('input[name="submit-mode"]:checked').val();
+}
+
+function computeJsonpHashInput(formula, ref, dec, cents, cur, rp) {
+  switch (formula) {
+    case 'ref:dec:cur':    return ref + ':' + dec + ':' + cur;
+    case 'ref:cen:cur':    return ref + ':' + cents + ':' + cur;
+    case 'dec:ref:cur':    return dec + ':' + ref + ':' + cur;
+    case 'cen:ref:cur':    return cents + ':' + ref + ':' + cur;
+    case 'ref:dec:cur:rp': return ref + ':' + dec + ':' + cur + ':' + rp;
+    case 'ref:cen:cur:rp': return ref + ':' + cents + ':' + cur + ':' + rp;
+    case 'none':           return null;
+    default:               return ref + ':' + dec + ':' + cur;
+  }
+}
+
 let pendingRequest = null;
 
 $('#preview').on('click', function () {
@@ -79,6 +121,7 @@ $('#preview').on('click', function () {
   const expiryMonth  = $('#expiry_month').val().trim();
   const expiryYear   = $('#expiry_year').val().trim();
   const cvv          = $('#cvv').val().trim();
+  const mode         = getMode();
 
   $('#preview-error').hide();
   $('#preview-display').hide();
@@ -98,40 +141,76 @@ $('#preview').on('click', function () {
   if (!expiryYear)                                 errors.push('expiry_year is required');
   if (!cvv)                                        errors.push('cvv is required');
 
-  if (errors.length) {
-    $('#preview-error').text(errors.join(' · ')).show();
-    return;
-  }
-
   const amountDecimal = parseFloat(amountRaw).toFixed(2);
   const amountCents   = Math.round(parseFloat(amountRaw) * 100);
-  const hashInput     = reference + ':' + amountDecimal + ':' + currency;
-  const verification  = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
   const url           = SANDBOX_URL + '/' + username + '.json';
 
-  $('#p-url').text(url);
-  $('#p-amount').text(amountDecimal + ' (decimal) / ' + amountCents + ' (cents)');
-  $('#p-currency').text(currency);
-  $('#p-reference').text(reference);
-  $('#p-hash-input').text(hashInput);
-  $('#p-verification').text(verification);
-  $('#preview-display').show();
-  $('#submit-btn').prop('disabled', false);
+  if (mode === 'formpost') {
+    const returnPath = $('#return_path').val().trim();
+    if (!returnPath) errors.push('return_path is required for Form POST');
 
-  pendingRequest = {
-    url, username, sharedSecret,
-    data: {
-      card_holder:   cardHolder,
-      card_number:   cardNumber,
-      expiry_month:  expiryMonth,
-      expiry_year:   expiryYear,
-      cvv:           cvv,
-      amount:        amountDecimal,
-      currency:      currency,
-      reference:     reference,
-      verification:  verification,
+    if (errors.length) { $('#preview-error').text(errors.join(' · ')).show(); return; }
+
+    const hashInput  = reference + ':' + amountCents + ':' + currency + ':' + returnPath;
+    const verification = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
+
+    $('#p-mode-badge').text('Form POST');
+    $('#p-url').text(url);
+    $('#p-amount').text(amountCents + ' (integer cents)');
+    $('#p-currency').text(currency);
+    $('#p-reference').text(reference);
+    $('#p-return-path-row').show();
+    $('#p-return-path').text(returnPath);
+    $('#p-hash-input').text(hashInput);
+    $('#p-verification-row').show();
+    $('#p-verification').text(verification);
+    $('#preview-display').show();
+    $('#submit-btn').prop('disabled', false);
+
+    pendingRequest = { mode: 'formpost', url, amountCents, currency, reference, returnPath, verification, cardHolder, cardNumber, expiryMonth, expiryYear, cvv };
+
+  } else {
+    // JSONP mode
+    const formula     = $('#hash-formula').val();
+    const amountFmt   = $('input[name="amount-format"]:checked').val();
+    const rpVal       = $('#jsonp_return_path').val().trim();
+    const amountInReq = amountFmt === 'cents' ? amountCents : amountDecimal;
+
+    if (errors.length) { $('#preview-error').text(errors.join(' · ')).show(); return; }
+
+    const hashInput    = computeJsonpHashInput(formula, reference, amountDecimal, amountCents, currency, rpVal);
+    const verification = hashInput !== null ? CryptoJS.HmacMD5(hashInput, sharedSecret).toString() : null;
+
+    $('#p-mode-badge').text('JSONP');
+    $('#p-url').text(url);
+    $('#p-amount').text(amountInReq + (amountFmt === 'cents' ? ' (integer cents)' : ' (decimal)'));
+    $('#p-currency').text(currency);
+    $('#p-reference').text(reference);
+    $('#p-return-path-row').hide();
+    $('#p-hash-input').text(hashInput !== null ? hashInput : '(omitted)');
+    if (verification !== null) {
+      $('#p-verification-row').show();
+      $('#p-verification').text(verification);
+    } else {
+      $('#p-verification-row').hide();
     }
-  };
+    $('#preview-display').show();
+    $('#submit-btn').prop('disabled', false);
+
+    const data = {
+      card_holder:  cardHolder,
+      card_number:  cardNumber,
+      expiry_month: expiryMonth,
+      expiry_year:  expiryYear,
+      cvv:          cvv,
+      amount:       amountInReq,
+      currency:     currency,
+      reference:    reference,
+    };
+    if (verification !== null) data.verification = verification;
+
+    pendingRequest = { mode: 'jsonp', url, data };
+  }
 
   saveCreds(username, sharedSecret);
 });
@@ -139,12 +218,31 @@ $('#preview').on('click', function () {
 $('#submit-btn').on('click', function () {
   if (!pendingRequest) return;
 
+  if (pendingRequest.mode === 'formpost') {
+    const r = pendingRequest;
+    const form = document.getElementById('direct-post-form');
+    form.action = r.url;
+    document.getElementById('f-card_holder').value  = r.cardHolder;
+    document.getElementById('f-card_number').value  = r.cardNumber;
+    document.getElementById('f-expiry_month').value = r.expiryMonth;
+    document.getElementById('f-expiry_year').value  = r.expiryYear;
+    document.getElementById('f-cvv').value          = r.cvv;
+    document.getElementById('f-amount').value       = r.amountCents;
+    document.getElementById('f-currency').value     = r.currency;
+    document.getElementById('f-reference').value    = r.reference;
+    document.getElementById('f-return_path').value  = r.returnPath;
+    document.getElementById('f-verification').value = r.verification;
+    form.submit();
+    return;
+  }
+
+  // JSONP
   $('#submit-btn').prop('disabled', true).text('Submitting…');
   $('#response-panel').hide();
 
   $.ajax({
-    url:          pendingRequest.url,
-    dataType:     'jsonp',
+    url:           pendingRequest.url,
+    dataType:      'jsonp',
     jsonpCallback: 'pmntscb',
     data:          pendingRequest.data,
   })
