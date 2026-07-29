@@ -77,13 +77,20 @@
     <script>
       const params = Object.fromEntries(new URLSearchParams(window.location.search));
 
+      function formatAmount(raw) {
+        const n = parseFloat(raw);
+        return isNaN(n) ? (raw || '') : n.toFixed(2);
+      }
+
+      const amountDisplay = (params.currency || '') + ' ' + formatAmount(params.decimal_amount || params.amount);
+
       // Result banner
       const successful = params.successful === 'true';
       const alert = document.getElementById('result-alert');
       alert.classList.add(successful ? 'alert-success' : 'alert-danger');
       alert.innerHTML = successful
         ? '<strong>&#10003; Payment Successful</strong> &mdash; ' + (params.message || '') +
-          ' &mdash; <span class="mono">' + (params.currency || '') + ' ' + (params.decimal_amount || params.amount || '') + '</span>'
+          ' &mdash; <span class="mono">' + amountDisplay + '</span>'
         : '<strong>&#10007; Payment Failed</strong> &mdash; ' + (params.message || 'No message returned');
 
       function row(label, value, mono) {
@@ -98,7 +105,7 @@
         row('Reference',        params.reference,       true)  +
         row('Auth Code',        params.auth,            true)  +
         row('Response Code',    params.r,               false) +
-        row('Amount',           (params.currency || '') + ' ' + (params.decimal_amount || params.amount || ''), false) +
+        row('Amount',           amountDisplay, false) +
         row('Settlement Date',  params.settlement_date, false) +
         row('Timestamp',        params.timestamp,       false);
 
