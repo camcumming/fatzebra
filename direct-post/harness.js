@@ -28,8 +28,9 @@ $('#card-list').on('click', 'tr', function () {
   $('#test-card-modal').modal('hide');
 });
 
-const CREDS_COOKIE = 'fz_dp_creds';
-const SANDBOX_URL  = 'https://gateway.pmnts-sandbox.io/v2/purchases/direct';
+const CREDS_COOKIE    = 'fz_dp_creds';
+const SANDBOX_URL     = 'https://gateway.pmnts-sandbox.io/v2/purchases/direct';
+const SANDBOX_URL_JSON = SANDBOX_URL; // .json appended per-request for JSONP
 
 function saveCreds(username, sharedSecret) {
   const value = encodeURIComponent(JSON.stringify({ username, sharedSecret }));
@@ -142,7 +143,8 @@ $('#preview').on('click', function () {
 
   const amountDecimal = parseFloat(amountRaw).toFixed(2);
   const amountCents   = Math.round(parseFloat(amountRaw) * 100);
-  const url           = SANDBOX_URL + '/' + username + '.json';
+  const urlBase       = SANDBOX_URL + '/' + username;
+  const url           = mode === 'formpost' ? urlBase : urlBase + '.json';
 
   if (mode === 'formpost') {
     const returnPath = $('#return_path').val().trim();
