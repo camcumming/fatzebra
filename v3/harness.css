@@ -19,7 +19,10 @@
   word-break: break-all;
 }
 
-/* Navbar items wrap gracefully on narrow screens */
+/* Navbar wraps gracefully on narrow screens */
+.navbar {
+  flex-wrap: wrap;
+}
 .navbar .navbar-nav {
   flex-wrap: wrap;
 }

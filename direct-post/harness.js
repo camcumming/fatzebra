@@ -28,14 +28,14 @@ $('#card-list').on('click', 'tr', function () {
   $('#test-card-modal').modal('hide');
 });
 
-const CREDS_COOKIE    = 'fz_dp_creds';
-const SANDBOX_URL     = 'https://gateway.pmnts-sandbox.io/v2/purchases/direct';
-const SANDBOX_URL_JSON = SANDBOX_URL; // .json appended per-request for JSONP
+const CREDS_COOKIE = 'fz_creds';
+const COOKIE_PATH  = '/fatzebra/';
+const SANDBOX_URL  = 'https://gateway.pmnts-sandbox.io/v2/purchases/direct';
 
 function saveCreds(username, sharedSecret) {
-  const value = encodeURIComponent(JSON.stringify({ username, sharedSecret }));
-  document.cookie = CREDS_COOKIE + '=' + value +
-    '; max-age=3600; Secure; SameSite=Strict; Path=/fatzebra/direct-post/';
+  const merged = Object.assign(loadCreds() || {}, { username, sharedSecret });
+  document.cookie = CREDS_COOKIE + '=' + encodeURIComponent(JSON.stringify(merged)) +
+    '; max-age=28800; Secure; SameSite=Strict; Path=' + COOKIE_PATH;
 }
 
 function loadCreds() {
@@ -46,32 +46,52 @@ function loadCreds() {
 }
 
 function clearCreds() {
-  document.cookie = CREDS_COOKIE + '=; max-age=0; Secure; SameSite=Strict; Path=/fatzebra/direct-post/';
+  document.cookie = CREDS_COOKIE + '=; max-age=0; Secure; SameSite=Strict; Path=' + COOKIE_PATH;
 }
 
-// Auto-set return_path / jsonp_return_path to callback.html
+function updateCredsStatus() {
+  $('#no-creds-alert').toggle(!loadCreds());
+}
+
+$('#credentials-modal').on('show.bs.modal', function () {
+  const c = loadCreds() || {};
+  $('#cred-username').val(c.username || '');
+  $('#cred-shared-secret').val(c.sharedSecret || '');
+});
+
+$('#cred-save').on('click', function () {
+  const username     = $('#cred-username').val().trim();
+  const sharedSecret = $('#cred-shared-secret').val().trim();
+  saveCreds(username, sharedSecret);
+  updateCredsStatus();
+  $('#credentials-modal').modal('hide');
+});
+
+$('#cred-clear').on('click', function () {
+  clearCreds();
+  $('#cred-username').val('');
+  $('#cred-shared-secret').val('');
+  updateCredsStatus();
+});
+
 const callbackUrl = window.location.href.replace(/harness\.html.*$/, 'callback.html');
 $('#return_path').val(callbackUrl);
 $('#jsonp_return_path').val(callbackUrl);
 
 $('#reference').val(crypto.randomUUID());
 
-const saved = loadCreds();
-if (saved) {
-  $('#username').val(saved.username);
-  $('#sharedSecret').val(saved.sharedSecret);
-  $('#creds-saved-note').show();
-}
+updateCredsStatus();
 
-$('#clear-creds').on('click', function (e) {
-  e.preventDefault();
-  clearCreds();
-  $('#username').val('');
-  $('#sharedSecret').val('');
-  $('#creds-saved-note').hide();
+$('#hash-formula').on('change', function () {
+  const formula = $(this).val();
+  $('#jsonp-return-path-group').toggle(formula.endsWith(':rp'));
+  if (formula.includes(':cen:') || formula.endsWith(':cen')) {
+    $('#amt-cents').prop('checked', true);
+  } else if (formula.includes(':dec:') || formula.endsWith(':dec')) {
+    $('#amt-decimal').prop('checked', true);
+  }
 });
 
-// Mode switching
 $('input[name="submit-mode"]').on('change', function () {
   const mode = $(this).val();
   if (mode === 'formpost') {
@@ -85,17 +105,6 @@ $('input[name="submit-mode"]').on('change', function () {
   pendingRequest = null;
   $('#submit-btn').prop('disabled', true);
   $('#preview-display').hide();
-});
-
-$('#hash-formula').on('change', function () {
-  const formula = $(this).val();
-  $('#jsonp-return-path-group').toggle(formula.endsWith(':rp'));
-  // Keep amount format in sync with formula so they don't mismatch
-  if (formula.includes(':cen:') || formula.endsWith(':cen')) {
-    $('#amt-cents').prop('checked', true);
-  } else if (formula.includes(':dec:') || formula.endsWith(':dec')) {
-    $('#amt-decimal').prop('checked', true);
-  }
 });
 
 function getMode() {
@@ -118,17 +127,16 @@ function computeJsonpHashInput(formula, ref, dec, cents, cur, rp) {
 let pendingRequest = null;
 
 $('#preview').on('click', function () {
-  const username     = $('#username').val().trim();
-  const sharedSecret = $('#sharedSecret').val().trim();
-  const amountRaw    = $('#amount').val().trim();
-  const currency     = $('#currency').val().trim();
-  const reference    = $('#reference').val().trim();
-  const cardHolder   = $('#card_holder').val().trim();
-  const cardNumber   = $('#card_number').val().trim();
-  const expiryMonth  = $('#expiry_month').val().trim();
-  const expiryYear   = $('#expiry_year').val().trim();
-  const cvv          = $('#cvv').val().trim();
-  const mode         = getMode();
+  const creds       = loadCreds();
+  const amountRaw   = $('#amount').val().trim();
+  const currency    = $('#currency').val().trim();
+  const reference   = $('#reference').val().trim();
+  const cardHolder  = $('#card_holder').val().trim();
+  const cardNumber  = $('#card_number').val().trim();
+  const expiryMonth = $('#expiry_month').val().trim();
+  const expiryYear  = $('#expiry_year').val().trim();
+  const cvv         = $('#cvv').val().trim();
+  const mode        = getMode();
 
   $('#preview-error').hide();
   $('#preview-display').hide();
@@ -137,17 +145,19 @@ $('#preview').on('click', function () {
   pendingRequest = null;
 
   const errors = [];
-  if (!username)                                   errors.push('username is required');
-  if (!sharedSecret)                               errors.push('sharedSecret is required');
+  if (!creds || !creds.username)                  errors.push('username not set — open Credentials in the nav bar');
+  if (!creds || !creds.sharedSecret)              errors.push('sharedSecret not set — open Credentials in the nav bar');
   if (!amountRaw || isNaN(parseFloat(amountRaw))) errors.push('amount must be a decimal number');
-  if (!currency)                                   errors.push('currency is required');
-  if (!reference)                                  errors.push('reference is required');
-  if (!cardHolder)                                 errors.push('card_holder is required');
-  if (!cardNumber)                                 errors.push('card_number is required');
-  if (!expiryMonth)                                errors.push('expiry_month is required');
-  if (!expiryYear)                                 errors.push('expiry_year is required');
-  if (!cvv)                                        errors.push('cvv is required');
+  if (!currency)                                  errors.push('currency is required');
+  if (!reference)                                 errors.push('reference is required');
+  if (!cardHolder)                                errors.push('card_holder is required');
+  if (!cardNumber)                                errors.push('card_number is required');
+  if (!expiryMonth)                               errors.push('expiry_month is required');
+  if (!expiryYear)                                errors.push('expiry_year is required');
+  if (!cvv)                                       errors.push('cvv is required');
 
+  const username      = (creds || {}).username || '';
+  const sharedSecret  = (creds || {}).sharedSecret || '';
   const amountDecimal = parseFloat(amountRaw).toFixed(2);
   const amountCents   = Math.round(parseFloat(amountRaw) * 100);
   const urlBase       = SANDBOX_URL + '/' + username;
@@ -159,7 +169,7 @@ $('#preview').on('click', function () {
 
     if (errors.length) { $('#preview-error').text(errors.join(' · ')).show(); return; }
 
-    const hashInput  = reference + ':' + amountCents + ':' + currency + ':' + returnPath;
+    const hashInput    = reference + ':' + amountCents + ':' + currency + ':' + returnPath;
     const verification = CryptoJS.HmacMD5(hashInput, sharedSecret).toString();
 
     $('#p-mode-badge').text('Form POST');
@@ -178,7 +188,6 @@ $('#preview').on('click', function () {
     pendingRequest = { mode: 'formpost', url, amountCents, currency, reference, returnPath, verification, cardHolder, cardNumber, expiryMonth, expiryYear, cvv };
 
   } else {
-    // JSONP mode
     const formula     = $('#hash-formula').val();
     const amountFmt   = $('input[name="amount-format"]:checked').val();
     const rpVal       = $('#jsonp_return_path').val().trim();
@@ -220,15 +229,13 @@ $('#preview').on('click', function () {
 
     pendingRequest = { mode: 'jsonp', url, data };
   }
-
-  saveCreds(username, sharedSecret);
 });
 
 $('#submit-btn').on('click', function () {
   if (!pendingRequest) return;
 
   if (pendingRequest.mode === 'formpost') {
-    const r = pendingRequest;
+    const r    = pendingRequest;
     const form = document.getElementById('direct-post-form');
     form.action = r.url;
     document.getElementById('f-card_holder').value  = r.cardHolder;
@@ -245,7 +252,6 @@ $('#submit-btn').on('click', function () {
     return;
   }
 
-  // JSONP
   $('#submit-btn').prop('disabled', true).text('Submitting…');
   $('#response-panel').hide();
 
@@ -283,19 +289,19 @@ function showResponse(response) {
     }
   };
 
-  add('r (response code)', response.r, false);
-  add('successful',        response.successful, false);
-  add('message',           response.message, false);
-  add('id',                response.id, true);
-  add('token',             response.token, true);
-  add('card_holder',       response.card_holder, false);
-  add('card_number',       response.card_number, true);
-  add('card_expiry',       response.card_expiry, true);
-  add('card_type',         response.card_type, false);
-  add('auth',              response.auth, true);
-  add('amount',            response.amount, false);
-  add('currency',          response.currency, false);
-  add('reference',         response.reference, true);
+  add('r (response code)', response.r,           false);
+  add('successful',        response.successful,   false);
+  add('message',           response.message,      false);
+  add('id',                response.id,           true);
+  add('token',             response.token,        true);
+  add('card_holder',       response.card_holder,  false);
+  add('card_number',       response.card_number,  true);
+  add('card_expiry',       response.card_expiry,  true);
+  add('card_type',         response.card_type,    false);
+  add('auth',              response.auth,         true);
+  add('amount',            response.amount,       false);
+  add('currency',          response.currency,     false);
+  add('reference',         response.reference,    true);
 
   if (response.errors && response.errors.length) {
     rows.push('<tr><th>errors</th><td class="text-danger">' + response.errors.join('<br>') + '</td></tr>');

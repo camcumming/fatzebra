@@ -31,19 +31,59 @@ $('#card-list').on('click', 'tr', function () {
   $('#test-card-modal').modal('hide');
 });
 
+const CREDS_COOKIE = 'fz_creds';
+const COOKIE_PATH  = '/fatzebra/';
+
+function saveCreds(username, sharedSecret, accessToken) {
+  const value = encodeURIComponent(JSON.stringify({ username, sharedSecret, accessToken: accessToken || '' }));
+  document.cookie = CREDS_COOKIE + '=' + value +
+    '; max-age=28800; Secure; SameSite=Strict; Path=' + COOKIE_PATH;
+}
+
+function loadCreds() {
+  const match = document.cookie.split('; ').find(r => r.startsWith(CREDS_COOKIE + '='));
+  if (!match) return null;
+  try { return JSON.parse(decodeURIComponent(match.split('=').slice(1).join('='))); }
+  catch (e) { return null; }
+}
+
+function clearCreds() {
+  document.cookie = CREDS_COOKIE + '=; max-age=0; Secure; SameSite=Strict; Path=' + COOKIE_PATH;
+}
+
+function updateCredsStatus() {
+  $('#no-creds-alert').toggle(!loadCreds());
+}
+
+$('#credentials-modal').on('show.bs.modal', function () {
+  const c = loadCreds() || {};
+  $('#cred-access-token').val(c.accessToken || '');
+  $('#cred-username').val(c.username || '');
+  $('#cred-shared-secret').val(c.sharedSecret || '');
+});
+
+$('#cred-save').on('click', function () {
+  const accessToken  = $('#cred-access-token').val().trim();
+  const username     = $('#cred-username').val().trim();
+  const sharedSecret = $('#cred-shared-secret').val().trim();
+  saveCreds(username, sharedSecret, accessToken);
+  updateCredsStatus();
+  $('#credentials-modal').modal('hide');
+});
+
+$('#cred-clear').on('click', function () {
+  clearCreds();
+  $('#cred-access-token').val('');
+  $('#cred-username').val('');
+  $('#cred-shared-secret').val('');
+  updateCredsStatus();
+});
+
 function randomString() {
   return Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
 }
 
 const SDK_PARAMS = [
-  {
-    group: 'base',
-    params: [
-      { name: 'accessToken', default: '' },
-      { name: 'username', default: '' },
-      { name: 'sharedSecret', default: '' }
-    ]
-  },
   {
     group: 'paymentIntent',
     params: [
@@ -133,10 +173,13 @@ for (const option of HPP_PERMITTED_OPTIONS) {
 }
 
 
+updateCredsStatus();
+
 const loadHPP = function() {
-  const accessToken  = $('#accessToken').val();
-  const username     = $('#username').val(); 
-  const sharedSecret = $('#sharedSecret').val();      
+  const creds        = loadCreds() || {};
+  const accessToken  = creds.accessToken || '';
+  const username     = creds.username || '';
+  const sharedSecret = creds.sharedSecret || '';
   const amount       = parseInt($('#amount').val());
   const currency     = $('#currency').val();   
   const reference    = $('#reference').val();    
@@ -148,8 +191,6 @@ const loadHPP = function() {
   const postcode     = $('#postcode').val();   
   const state        = $('#state').val();   
   const country      = $('#country').val();
-
-  window.localStorage.setItem('fz-access-token', accessToken);
 
   const verification = CryptoJS.HmacMD5([reference, amount, currency].join(':'), sharedSecret).toString();
 
