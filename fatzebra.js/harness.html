@@ -111,7 +111,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="text-muted small mb-3">Saved as a cookie shared across all harnesses. Expires after 8 hours. The access token is fetched at runtime from the OAuth endpoint — only the key and secret are stored.</p>
+            <p class="text-muted small mb-3">Saved as a cookie shared across all harnesses. Expires after 8 hours.</p>
             <div class="form-group">
               <label for="cred-access-key">access_key</label>
               <input type="text" id="cred-access-key" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
@@ -138,6 +138,24 @@
                 </div>
               </div>
             </div>
+            <hr>
+            <p class="text-muted small mb-2">The OAuth endpoint blocks direct browser requests (CORS). Run this in a terminal and paste the token below. Tokens expire after 15 minutes.</p>
+            <div class="form-group">
+              <label class="d-flex justify-content-between align-items-center">
+                <span>curl command</span>
+                <button type="button" class="btn btn-link btn-sm p-0" id="copy-curl"><i class="fa fa-clipboard" aria-hidden="true"></i> Copy</button>
+              </label>
+              <textarea id="curl-command" class="form-control form-control-sm" rows="3" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
+            </div>
+            <div class="form-group mb-0">
+              <label for="cred-access-token">accessToken <small class="text-muted">(paste JWT from curl output)</small></label>
+              <div class="input-group">
+                <input type="password" id="cred-access-token" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="button" data-toggle-pw="cred-access-token" tabindex="-1"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-danger btn-sm mr-auto" id="cred-clear">Clear</button>
@@ -149,7 +167,7 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=5"></script>
+    <script src="harness.js?v=6"></script>
     <script>
     </script>
   </footer>

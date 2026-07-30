@@ -34,8 +34,8 @@ $('#card-list').on('click', 'tr', function () {
 const CREDS_COOKIE = 'fz_creds';
 const COOKIE_PATH  = '/fatzebra/';
 
-function saveCreds(username, sharedSecret, accessKey, accessSecret) {
-  const merged = Object.assign(loadCreds() || {}, { username, sharedSecret, accessKey, accessSecret });
+function saveCreds(username, sharedSecret, accessKey, accessSecret, accessToken) {
+  const merged = Object.assign(loadCreds() || {}, { username, sharedSecret, accessKey, accessSecret, accessToken });
   document.cookie = CREDS_COOKIE + '=' + encodeURIComponent(JSON.stringify(merged)) +
     '; max-age=28800; Secure; SameSite=Strict; Path=' + COOKIE_PATH;
 }
@@ -55,13 +55,36 @@ function updateCredsStatus() {
   $('#no-creds-alert').toggle(!loadCreds());
 }
 
+function updateCurlCommand() {
+  const key    = $('#cred-access-key').val().trim();
+  const secret = $('#cred-access-secret').val().trim();
+  $('#curl-command').val((key && secret)
+    ? 'curl -s -X POST https://api.pmnts-sandbox.io/oauth/token -H \'Content-Type: application/json\' -d \'{"access_key":"' + key + '","access_secret":"' + secret + '"}\''
+    : '(enter access_key and access_secret above to generate this command)'
+  );
+}
+
 $('#credentials-modal').on('show.bs.modal', function () {
   const c = loadCreds() || {};
   $('#cred-access-key').val(c.accessKey || '');
   $('#cred-access-secret').prop('type', 'password').val(c.accessSecret || '');
   $('#cred-username').val(c.username || '');
   $('#cred-shared-secret').prop('type', 'password').val(c.sharedSecret || '');
+  $('#cred-access-token').prop('type', 'password').val(c.accessToken || '');
   $('[data-toggle-pw]').find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+  updateCurlCommand();
+});
+
+$('#cred-access-key, #cred-access-secret').on('input', updateCurlCommand);
+
+$('#copy-curl').on('click', function () {
+  const text = $('#curl-command').val();
+  if (!text || text.startsWith('(')) return;
+  const $btn = $(this);
+  navigator.clipboard.writeText(text).then(function () {
+    $btn.html('<i class="fa fa-check" aria-hidden="true"></i> Copied!');
+    setTimeout(function () { $btn.html('<i class="fa fa-clipboard" aria-hidden="true"></i> Copy'); }, 2000);
+  });
 });
 
 $(document).on('click', '[data-toggle-pw]', function () {
@@ -76,7 +99,8 @@ $('#cred-save').on('click', function () {
   const accessSecret = $('#cred-access-secret').val().trim();
   const username     = $('#cred-username').val().trim();
   const sharedSecret = $('#cred-shared-secret').val().trim();
-  saveCreds(username, sharedSecret, accessKey, accessSecret);
+  const accessToken  = $('#cred-access-token').val().trim();
+  saveCreds(username, sharedSecret, accessKey, accessSecret, accessToken);
   updateCredsStatus();
   $('#credentials-modal').modal('hide');
 });
@@ -87,7 +111,9 @@ $('#cred-clear').on('click', function () {
   $('#cred-access-secret').val('');
   $('#cred-username').val('');
   $('#cred-shared-secret').val('');
+  $('#cred-access-token').val('');
   updateCredsStatus();
+  updateCurlCommand();
 });
 
 function randomString() {
@@ -219,9 +245,15 @@ const loadHPP = async function() {
     localStorage.setItem('fz-access-token', accessToken);
     $status.text('OAuth token fetched.').addClass('text-success').show();
   } catch (e) {
-    $status.text('Failed to fetch OAuth token: ' + e.message).addClass('text-danger').show();
-    $btn.prop('disabled', false).text('Load Payments Page');
-    return;
+    if (creds.accessToken) {
+      accessToken = creds.accessToken;
+      localStorage.setItem('fz-access-token', accessToken);
+      $status.text('Auto-fetch blocked by CORS — using stored token. Tokens expire after 15 min; refresh via Credentials if the form fails to load.').addClass('text-warning').show();
+    } else {
+      $status.html('Auto-fetch blocked by CORS. Use the curl command in <a href="#" data-toggle="modal" data-target="#credentials-modal">Credentials</a> to get a token and paste it in.').addClass('text-danger').show();
+      $btn.prop('disabled', false).text('Load Payments Page');
+      return;
+    }
   }
 
   $btn.prop('disabled', false).text('Load Payments Page');
