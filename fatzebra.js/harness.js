@@ -218,6 +218,45 @@ $('#show-options').on('change', function () {
 
 const OAUTH_URL = 'https://api.pmnts-sandbox.io/oauth/token';
 
+function showResponse(eventName, detail) {
+  const data = (detail && detail.data) ? detail.data : (detail || {});
+  const successful = eventName === 'fz.payment.success';
+
+  const banner = $('#response-banner');
+  banner.removeClass('alert-success alert-danger');
+  banner.addClass(successful ? 'alert-success' : 'alert-danger');
+  banner.html(successful
+    ? '<strong>&#10003; Payment Successful</strong>' + (data.message ? ' &mdash; ' + data.message : '')
+    : '<strong>&#10007; Payment Failed</strong>'    + (data.message ? ' &mdash; ' + data.message : ''));
+
+  const rows = [];
+  const add = (label, val, mono) => {
+    if (val !== undefined && val !== null && val !== '') {
+      rows.push('<tr><th style="width:35%">' + label + '</th><td' + (mono ? ' class="mono"' : '') + '>' + val + '</td></tr>');
+    }
+  };
+
+  add('transaction_id', data.transaction_id, true);
+  add('response_code',  data.response_code,  true);
+  add('message',        data.message,        false);
+  add('amount',         data.amount,         false);
+  add('currency',       data.currency,       false);
+  add('reference',      data.reference,      true);
+  add('card_number',    data.card_number,    true);
+  add('card_holder',    data.card_holder,    false);
+  add('card_expiry',    data.card_expiry,    true);
+  add('card_type',      data.card_type,      false);
+
+  if (detail && detail.errors && detail.errors.length) {
+    rows.push('<tr><th>errors</th><td class="text-danger">' + detail.errors.join('<br>') + '</td></tr>');
+  }
+
+  $('#response-tbody').html(rows.join(''));
+  $('#response-raw').text(JSON.stringify(detail, null, 2));
+  $('#response-panel').show();
+  $('html, body').animate({ scrollTop: $('#response-panel').offset().top - 20 }, 300);
+}
+
 const loadHPP = async function() {
   const creds        = loadCreds() || {};
   const accessKey    = creds.accessKey    || '';
@@ -227,7 +266,8 @@ const loadHPP = async function() {
 
   const $btn    = $('#load-hpp');
   const $status = $('#token-status');
-  $status.hide().removeClass('text-danger text-success').text('');
+  $status.hide().removeClass('text-danger text-success text-warning').text('');
+  $('#response-panel').hide();
   $btn.prop('disabled', true).text('Fetching token…');
 
   let accessToken;
@@ -332,16 +372,14 @@ const loadHPP = async function() {
 
   fz.on('fz.payment.success', function(event) {
     console.log('fz.payment.success');
-    console.log(JSON.stringify(event.detail))
-    // Verify data integrity with your backend via ajax before consuming transaction data.
-    alert('payment success!');
-    
+    console.log(JSON.stringify(event.detail));
+    showResponse('fz.payment.success', event.detail);
   })
 
   fz.on('fz.payment.error', function(event) {
     console.log('fz.payment.error');
-    console.log(JSON.stringify(event.detail))
-    alert('payment error!');
+    console.log(JSON.stringify(event.detail));
+    showResponse('fz.payment.error', event.detail);
   })
 
   fz.renderPaymentsPage({

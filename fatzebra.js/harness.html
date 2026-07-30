@@ -64,6 +64,19 @@
             <div class="col-md-12">
               <br/>
               <div id="fz-iframe"></div>
+              <div id="response-panel" class="mt-3" style="display:none;">
+                <h6 class="text-muted">Payment Response</h6>
+                <div id="response-banner" class="alert mb-2"></div>
+                <table class="table table-sm table-bordered">
+                  <tbody id="response-tbody"></tbody>
+                </table>
+                <div class="card">
+                  <div class="card-header py-1" style="font-size:0.875rem;">Raw event detail</div>
+                  <div class="card-body p-2">
+                    <pre id="response-raw" style="margin:0; font-size:0.8rem; white-space:pre-wrap; word-break:break-all;"></pre>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -167,7 +180,7 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=6"></script>
+    <script src="harness.js?v=7"></script>
     <script>
     </script>
   </footer>
