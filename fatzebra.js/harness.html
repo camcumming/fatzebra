@@ -32,7 +32,7 @@
       </div>
       <div id="no-creds-alert" class="alert alert-warning mx-2" role="alert" style="display:none;">
         <strong>No credentials set.</strong>
-        Tap <strong>Credentials</strong> in the nav bar to enter your accessToken, username, and shared secret.
+        Tap <strong>Credentials</strong> in the nav bar to enter your access_key, access_secret, username, and sharedSecret.
       </div>
       <div class="row">
         <div class="col-md-5">
@@ -57,6 +57,7 @@
               <button type="button" class="btn btn-outline-danger" id="reset">Reset</button>
               <button type="button" class="btn btn-outline-primary" id="load-hpp">Load Payments Page</button>
               <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#test-card-modal">View Test Cards</button>
+              <div id="token-status" class="small mt-1" style="display:none;"></div>
             </div>
           </div>
           <div class="row">
@@ -110,13 +111,17 @@
             </button>
           </div>
           <div class="modal-body">
-            <p class="text-muted small mb-3">Saved as a cookie shared across all harnesses. Expires after 8 hours.</p>
+            <p class="text-muted small mb-3">Saved as a cookie shared across all harnesses. Expires after 8 hours. The access token is fetched at runtime from the OAuth endpoint — only the key and secret are stored.</p>
             <div class="form-group">
-              <label for="cred-access-token">accessToken</label>
+              <label for="cred-access-key">access_key</label>
+              <input type="text" id="cred-access-key" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div class="form-group">
+              <label for="cred-access-secret">access_secret</label>
               <div class="input-group">
-                <input type="password" id="cred-access-token" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <input type="password" id="cred-access-secret" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 <div class="input-group-append">
-                  <button class="btn btn-outline-secondary" type="button" data-toggle-pw="cred-access-token" tabindex="-1"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                  <button class="btn btn-outline-secondary" type="button" data-toggle-pw="cred-access-secret" tabindex="-1"><i class="fa fa-eye" aria-hidden="true"></i></button>
                 </div>
               </div>
             </div>
@@ -144,7 +149,7 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=4"></script>
+    <script src="harness.js?v=5"></script>
     <script>
     </script>
   </footer>

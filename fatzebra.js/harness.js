@@ -34,9 +34,9 @@ $('#card-list').on('click', 'tr', function () {
 const CREDS_COOKIE = 'fz_creds';
 const COOKIE_PATH  = '/fatzebra/';
 
-function saveCreds(username, sharedSecret, accessToken) {
-  const value = encodeURIComponent(JSON.stringify({ username, sharedSecret, accessToken: accessToken || '' }));
-  document.cookie = CREDS_COOKIE + '=' + value +
+function saveCreds(username, sharedSecret, accessKey, accessSecret) {
+  const merged = Object.assign(loadCreds() || {}, { username, sharedSecret, accessKey, accessSecret });
+  document.cookie = CREDS_COOKIE + '=' + encodeURIComponent(JSON.stringify(merged)) +
     '; max-age=28800; Secure; SameSite=Strict; Path=' + COOKIE_PATH;
 }
 
@@ -57,7 +57,8 @@ function updateCredsStatus() {
 
 $('#credentials-modal').on('show.bs.modal', function () {
   const c = loadCreds() || {};
-  $('#cred-access-token').prop('type', 'password').val(c.accessToken || '');
+  $('#cred-access-key').val(c.accessKey || '');
+  $('#cred-access-secret').prop('type', 'password').val(c.accessSecret || '');
   $('#cred-username').val(c.username || '');
   $('#cred-shared-secret').prop('type', 'password').val(c.sharedSecret || '');
   $('[data-toggle-pw]').find('i').removeClass('fa-eye-slash').addClass('fa-eye');
@@ -71,17 +72,19 @@ $(document).on('click', '[data-toggle-pw]', function () {
 });
 
 $('#cred-save').on('click', function () {
-  const accessToken  = $('#cred-access-token').val().trim();
+  const accessKey    = $('#cred-access-key').val().trim();
+  const accessSecret = $('#cred-access-secret').val().trim();
   const username     = $('#cred-username').val().trim();
   const sharedSecret = $('#cred-shared-secret').val().trim();
-  saveCreds(username, sharedSecret, accessToken);
+  saveCreds(username, sharedSecret, accessKey, accessSecret);
   updateCredsStatus();
   $('#credentials-modal').modal('hide');
 });
 
 $('#cred-clear').on('click', function () {
   clearCreds();
-  $('#cred-access-token').val('');
+  $('#cred-access-key').val('');
+  $('#cred-access-secret').val('');
   $('#cred-username').val('');
   $('#cred-shared-secret').val('');
   updateCredsStatus();
@@ -187,11 +190,41 @@ $('#show-options').on('change', function () {
   $('#fz-options-wrapper').toggle(this.checked);
 });
 
-const loadHPP = function() {
+const OAUTH_URL = 'https://api.pmnts-sandbox.io/oauth/token';
+
+const loadHPP = async function() {
   const creds        = loadCreds() || {};
-  const accessToken  = creds.accessToken || '';
-  const username     = creds.username || '';
+  const accessKey    = creds.accessKey    || '';
+  const accessSecret = creds.accessSecret || '';
+  const username     = creds.username     || '';
   const sharedSecret = creds.sharedSecret || '';
+
+  const $btn    = $('#load-hpp');
+  const $status = $('#token-status');
+  $status.hide().removeClass('text-danger text-success').text('');
+  $btn.prop('disabled', true).text('Fetching token…');
+
+  let accessToken;
+  try {
+    const resp = await fetch(OAUTH_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ access_key: accessKey, access_secret: accessSecret }),
+    });
+    const json = await resp.json();
+    if (!resp.ok || !json.data || !json.data.token) {
+      throw new Error(json.message || 'HTTP ' + resp.status);
+    }
+    accessToken = json.data.token;
+    localStorage.setItem('fz-access-token', accessToken);
+    $status.text('OAuth token fetched.').addClass('text-success').show();
+  } catch (e) {
+    $status.text('Failed to fetch OAuth token: ' + e.message).addClass('text-danger').show();
+    $btn.prop('disabled', false).text('Load Payments Page');
+    return;
+  }
+
+  $btn.prop('disabled', false).text('Load Payments Page');
   const amount       = parseInt($('#amount').val());
   const currency     = $('#currency').val();   
   const reference    = $('#reference').val();    
