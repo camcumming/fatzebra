@@ -144,7 +144,7 @@ const SDK_PARAMS = [
   {
     group: 'paymentIntent',
     params: [
-      { name: 'amount',    default: 100 },
+      { name: 'amount', label: 'amount (decimal, e.g. 1.00)', default: '1.00' },
       { name: 'currency',  default: 'AUD' },
       { name: 'reference', default: randomString() }
     ]
@@ -180,7 +180,7 @@ const createTextField = function(item) {
   let input;
 
   input = "<div class='form-group'>";
-  input += "<label for='" + item.name + "' class='control-label'>" + item.name + "</label>";
+  input += "<label for='" + item.name + "' class='control-label'>" + (item.label || item.name) + "</label>";
   input += "<input type='text' id='" + item.name + "' name='" + item.name + "' class='form-control' value='" + item.default + "'>";
   input += "</div>";
 
@@ -329,7 +329,7 @@ const loadHPP = async function() {
   }
 
   $btn.prop('disabled', false).text('Load Payments Page');
-  const amount    = parseInt($('#amount').val());
+  const amount    = Math.round(parseFloat($('#amount').val()) * 100);
   const currency  = $('#currency').val();
   const reference = $('#reference').val();
 
