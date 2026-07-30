@@ -153,16 +153,28 @@
               </div>
             </div>
             <hr>
-            <p class="text-muted small mb-2">The OAuth endpoint blocks direct browser requests (CORS). Run this in a terminal and paste the token below. Tokens expire after 15 minutes.</p>
-            <div class="form-group">
-              <label class="d-flex justify-content-between align-items-center">
-                <span>curl command</span>
-                <button type="button" class="btn btn-link btn-sm p-0" id="copy-curl"><i class="fa fa-clipboard" aria-hidden="true"></i> Copy</button>
-              </label>
-              <textarea id="curl-command" class="form-control form-control-sm" rows="3" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
+            <p class="text-muted small mb-2">The OAuth endpoint blocks direct browser requests (CORS). Run this command in a terminal — the token is automatically copied to your clipboard. Tokens expire after 15 minutes.</p>
+            <ul class="nav nav-tabs mb-0" id="curl-os-tabs" role="tablist" style="font-size:0.8rem;">
+              <li class="nav-item"><a class="nav-link active py-1 px-2" data-toggle="tab" href="#curl-pane-mac"     role="tab">macOS</a></li>
+              <li class="nav-item"><a class="nav-link        py-1 px-2" data-toggle="tab" href="#curl-pane-linux"   role="tab">Linux</a></li>
+              <li class="nav-item"><a class="nav-link        py-1 px-2" data-toggle="tab" href="#curl-pane-windows" role="tab">Windows</a></li>
+            </ul>
+            <div class="tab-content border border-top-0 rounded-bottom mb-3 p-2" style="background:#f8f9fa;">
+              <div class="tab-pane active" id="curl-pane-mac" role="tabpanel">
+                <div class="d-flex justify-content-end"><button type="button" class="btn btn-link btn-sm p-0" data-copy-curl="mac"><i class="fa fa-clipboard"></i> Copy</button></div>
+                <textarea id="curl-mac-cmd" class="form-control form-control-sm" rows="3" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
+              </div>
+              <div class="tab-pane" id="curl-pane-linux" role="tabpanel">
+                <div class="d-flex justify-content-end"><button type="button" class="btn btn-link btn-sm p-0" data-copy-curl="linux"><i class="fa fa-clipboard"></i> Copy</button></div>
+                <textarea id="curl-linux-cmd" class="form-control form-control-sm" rows="3" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
+              </div>
+              <div class="tab-pane" id="curl-pane-windows" role="tabpanel">
+                <div class="d-flex justify-content-end"><button type="button" class="btn btn-link btn-sm p-0" data-copy-curl="windows"><i class="fa fa-clipboard"></i> Copy</button></div>
+                <textarea id="curl-windows-cmd" class="form-control form-control-sm" rows="2" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
+              </div>
             </div>
             <div class="form-group mb-0">
-              <label for="cred-access-token">accessToken <small class="text-muted">(paste JWT from curl output)</small></label>
+              <label for="cred-access-token">accessToken <small class="text-muted">(paste token — already in clipboard after running the command above)</small></label>
               <div class="input-group">
                 <input type="password" id="cred-access-token" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 <div class="input-group-append">
@@ -181,7 +193,7 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=8"></script>
+    <script src="harness.js?v=9"></script>
     <script>
     </script>
   </footer>

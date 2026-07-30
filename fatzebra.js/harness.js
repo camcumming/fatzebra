@@ -58,9 +58,27 @@ function updateCredsStatus() {
 function updateCurlCommand() {
   const key    = $('#cred-access-key').val().trim();
   const secret = $('#cred-access-secret').val().trim();
-  $('#curl-command').val((key && secret)
-    ? 'curl -s -X POST https://api.pmnts-sandbox.io/oauth/token -H \'Content-Type: application/json\' -d \'{"access_key":"' + key + '","access_secret":"' + secret + '"}\''
-    : '(enter access_key and access_secret above to generate this command)'
+
+  if (!key || !secret) {
+    const placeholder = '(enter access_key and access_secret above to generate this command)';
+    $('#curl-mac-cmd, #curl-linux-cmd, #curl-windows-cmd').val(placeholder);
+    return;
+  }
+
+  const curlBase = 'curl -s -X POST https://api.pmnts-sandbox.io/oauth/token' +
+    ' -H \'Content-Type: application/json\'' +
+    ' -d \'{"access_key":"' + key + '","access_secret":"' + secret + '"}\'';
+  const extract = ' | python3 -c "import sys,json; print(json.load(sys.stdin)[\'data\'][\'token\'],end=\'\')"';
+
+  $('#curl-mac-cmd').val(curlBase + extract + ' | pbcopy && echo "Token copied to clipboard"');
+  $('#curl-linux-cmd').val(curlBase + extract + ' | xclip -selection clipboard && echo "Token copied to clipboard"');
+  $('#curl-windows-cmd').val(
+    '$r = Invoke-RestMethod -Method POST' +
+    ' -Uri \'https://api.pmnts-sandbox.io/oauth/token\'' +
+    ' -ContentType \'application/json\'' +
+    ' -Body \'{"access_key":"' + key + '","access_secret":"' + secret + '"}\';' +
+    ' $r.data.token | Set-Clipboard;' +
+    ' Write-Host "Token copied to clipboard"'
   );
 }
 
@@ -77,13 +95,14 @@ $('#credentials-modal').on('show.bs.modal', function () {
 
 $('#cred-access-key, #cred-access-secret').on('input', updateCurlCommand);
 
-$('#copy-curl').on('click', function () {
-  const text = $('#curl-command').val();
+$('[data-copy-curl]').on('click', function () {
+  const os   = $(this).attr('data-copy-curl');
+  const text = $('#curl-' + os + '-cmd').val();
   if (!text || text.startsWith('(')) return;
   const $btn = $(this);
   navigator.clipboard.writeText(text).then(function () {
-    $btn.html('<i class="fa fa-check" aria-hidden="true"></i> Copied!');
-    setTimeout(function () { $btn.html('<i class="fa fa-clipboard" aria-hidden="true"></i> Copy'); }, 2000);
+    $btn.html('<i class="fa fa-check"></i> Copied!');
+    setTimeout(function () { $btn.html('<i class="fa fa-clipboard"></i> Copy'); }, 2000);
   });
 });
 
