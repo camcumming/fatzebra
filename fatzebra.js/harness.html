@@ -158,6 +158,7 @@
               <li class="nav-item"><a class="nav-link active py-1 px-2" data-toggle="tab" href="#curl-pane-mac"     role="tab">macOS</a></li>
               <li class="nav-item"><a class="nav-link        py-1 px-2" data-toggle="tab" href="#curl-pane-linux"   role="tab">Linux</a></li>
               <li class="nav-item"><a class="nav-link        py-1 px-2" data-toggle="tab" href="#curl-pane-windows" role="tab">Windows</a></li>
+              <li class="nav-item"><a class="nav-link        py-1 px-2" data-toggle="tab" href="#curl-pane-raw"     role="tab">Raw curl</a></li>
             </ul>
             <div class="tab-content border border-top-0 rounded-bottom mb-3 p-2" style="background:#f8f9fa;">
               <div class="tab-pane active" id="curl-pane-mac" role="tabpanel">
@@ -171,6 +172,10 @@
               <div class="tab-pane" id="curl-pane-windows" role="tabpanel">
                 <div class="d-flex justify-content-end"><button type="button" class="btn btn-link btn-sm p-0" data-copy-curl="windows"><i class="fa fa-clipboard"></i> Copy</button></div>
                 <textarea id="curl-windows-cmd" class="form-control form-control-sm" rows="2" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
+              </div>
+              <div class="tab-pane" id="curl-pane-raw" role="tabpanel">
+                <div class="d-flex justify-content-end"><button type="button" class="btn btn-link btn-sm p-0" data-copy-curl="raw"><i class="fa fa-clipboard"></i> Copy</button></div>
+                <textarea id="curl-raw-cmd" class="form-control form-control-sm" rows="2" readonly style="font-size:0.72rem; font-family:monospace; word-break:break-all; resize:none;"></textarea>
               </div>
             </div>
             <div class="form-group mb-0">
@@ -193,7 +198,7 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=9"></script>
+    <script src="harness.js?v=10"></script>
     <script>
     </script>
   </footer>

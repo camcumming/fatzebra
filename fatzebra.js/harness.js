@@ -61,7 +61,7 @@ function updateCurlCommand() {
 
   if (!key || !secret) {
     const placeholder = '(enter access_key and access_secret above to generate this command)';
-    $('#curl-mac-cmd, #curl-linux-cmd, #curl-windows-cmd').val(placeholder);
+    $('#curl-mac-cmd, #curl-linux-cmd, #curl-windows-cmd, #curl-raw-cmd').val(placeholder);
     return;
   }
 
@@ -80,6 +80,7 @@ function updateCurlCommand() {
     ' $r.data.token | Set-Clipboard;' +
     ' Write-Host "Token copied to clipboard"'
   );
+  $('#curl-raw-cmd').val(curlBase);
 }
 
 $('#credentials-modal').on('show.bs.modal', function () {
@@ -143,27 +144,22 @@ const SDK_PARAMS = [
   {
     group: 'paymentIntent',
     params: [
-      { name: 'amount', default: 100 },
-      { name: 'currency', default: 'AUD' },
+      { name: 'amount',    default: 100 },
+      { name: 'currency',  default: 'AUD' },
       { name: 'reference', default: randomString() }
     ]
-  },
-  {
-    group: 'customer',
-    params: [
-      { name: 'firstName', default: 'John' },
-      { name: 'lastName',  default: 'Doe'  },
-      { name: 'email',     default: 'john.doe@123.com' }
-    ]
   }
-]
+];
 
-const ADDRESS_PARAMS = [
-  { name: 'address',  default: '123 Australia Blvd.' },
-  { name: 'city',     default: 'Sydney' },
-  { name: 'postcode', default: '2000'   },
-  { name: 'state',    default: 'NSW'    },
-  { name: 'country',  default: 'AU'     }
+const CUSTOMER_PARAMS = [
+  { name: 'firstName', default: 'John' },
+  { name: 'lastName',  default: 'Doe'  },
+  { name: 'email',     default: 'john.doe@123.com' },
+  { name: 'address',   default: '123 Australia Blvd.' },
+  { name: 'city',      default: 'Sydney' },
+  { name: 'postcode',  default: '2000'   },
+  { name: 'state',     default: 'NSW'    },
+  { name: 'country',   default: 'AU'     }
 ];
 
 const HPP_PERMITTED_OPTIONS = [
@@ -208,27 +204,23 @@ const sdkOptionsContainer = $('#sdk-options');
 for (const group of SDK_PARAMS) {
   sdkOptionsContainer.append('<h4>' + group.group + '</h4>');
   sdkOptionsContainer.append('<hr/>');
-
   for (const item of group.params) {
     sdkOptionsContainer.append(createTextField(item));
   }
-
-  if (group.group === 'customer') {
-    sdkOptionsContainer.append(
-      '<div class="form-check mt-2 mb-1">' +
-      '<input class="form-check-input" type="checkbox" id="show-address">' +
-      '<label class="form-check-label text-muted" for="show-address">Show Address</label>' +
-      '</div>'
-    );
-    const $aw = $('<div id="fz-address-wrapper" style="display:none;"></div>');
-    for (const item of ADDRESS_PARAMS) {
-      $aw.append(createTextField(item));
-    }
-    sdkOptionsContainer.append($aw);
-  }
-
   sdkOptionsContainer.append('<br/>');
 }
+
+sdkOptionsContainer.append(
+  '<div class="form-check mt-2 mb-1">' +
+  '<input class="form-check-input" type="checkbox" id="show-customer">' +
+  '<label class="form-check-label text-muted" for="show-customer">Show Customer Details</label>' +
+  '</div>'
+);
+const $cw = $('<div id="fz-customer-wrapper" style="display:none;"><h4>customer</h4><hr/></div>');
+for (const item of CUSTOMER_PARAMS) {
+  $cw.append(createTextField(item));
+}
+sdkOptionsContainer.append($cw);
 
 const paynowOptionsContainer = $('#paynow-options');
 
@@ -252,8 +244,8 @@ $('#show-options').on('change', function () {
   $('#fz-options-wrapper').toggle(this.checked);
 });
 
-$('#show-address').on('change', function () {
-  $('#fz-address-wrapper').toggle(this.checked);
+$('#show-customer').on('change', function () {
+  $('#fz-customer-wrapper').toggle(this.checked);
 });
 
 const OAUTH_URL = 'https://api.pmnts-sandbox.io/oauth/token';
@@ -341,23 +333,12 @@ const loadHPP = async function() {
   const currency  = $('#currency').val();
   const reference = $('#reference').val();
 
-  const customer = {
-    firstName: $('#firstName').val(),
-    lastName:  $('#lastName').val(),
-    email:     $('#email').val()
-  };
-
-  if ($('#show-address').is(':checked')) {
-    const addr = $('#address').val();
-    const city = $('#city').val();
-    const pc   = $('#postcode').val();
-    const st   = $('#state').val();
-    const co   = $('#country').val();
-    if (addr) customer.address  = addr;
-    if (city) customer.city     = city;
-    if (pc)   customer.postcode = pc;
-    if (st)   customer.state    = st;
-    if (co)   customer.country  = co;
+  const customer = {};
+  if ($('#show-customer').is(':checked')) {
+    for (const item of CUSTOMER_PARAMS) {
+      const val = $('#' + item.name).val();
+      if (val) customer[item.name] = val;
+    }
   }
 
   const verification = CryptoJS.HmacMD5([reference, amount, currency].join(':'), sharedSecret).toString();
@@ -433,19 +414,16 @@ const loadHPP = async function() {
     showResponse('fz.payment.error', event.detail);
   })
 
-  fz.renderPaymentsPage({
+  const payload = {
     containerId: 'fz-iframe',
-    customer,
     paymentIntent: {
-      payment: {
-        amount,
-        currency,
-        reference
-      },
+      payment: { amount, currency, reference },
       verification
     },
     options: getPayNowOptions()
-  })
+  };
+  if (Object.keys(customer).length) payload.customer = customer;
+  fz.renderPaymentsPage(payload);
 }
 
 const refreshPage = function() {
