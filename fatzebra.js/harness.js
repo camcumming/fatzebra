@@ -154,7 +154,7 @@ const HPP_PERMITTED_OPTIONS = [
   { name: 'hideLogos', type: 'boolean', default: true },
   { name: 'showEmail', type: 'boolean', default: false },
   { name: 'showExtras', type: 'boolean', default: false },
-  { name: 'enableSca', type: 'boolean', default: true },
+  { name: 'enableSca', type: 'boolean', default: false },
   { name: 'tokenizeOnly', type: 'boolean', default: false }
 ];
 
