@@ -1,16 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fat Zebra — Integration Test Harnesses</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="v3/harness.css" rel="stylesheet">
+  <style>
+    .hero {
+      padding: 2.5rem 0 1.5rem;
+      border-bottom: 1px solid #dee2e6;
+      margin-bottom: 2rem;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+    .hero p {
+      color: #6c757d;
+      max-width: 680px;
+    }
+    .harness-card {
+      height: 100%;
+      transition: box-shadow 0.15s ease;
+    }
+    .harness-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .harness-card .card-header {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .harness-card .badge {
+      font-size: 0.7rem;
+      vertical-align: middle;
+    }
+    .detail-row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      color: #495057;
+    }
+    .detail-row .label {
+      font-weight: 600;
+      min-width: 120px;
+      color: #343a40;
+    }
+    .creds-note {
+      background: #f8f9fa;
+      border-left: 3px solid #6c757d;
+      padding: 0.75rem 1rem;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: #495057;
+    }
+    .creds-note code {
+      color: #e83e8c;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome</h1>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-    <p><a href="fatzebra.js/harness.html">JS SDK harness</a></p>
-    <p><a href="v3/harness.html">V3 hosted payment page harness</a></p>
-    <p><a href="direct-post/harness.html">Direct Post harness</a></p>
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand" href="index.html">Fat Zebra</a>
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item"><a class="nav-link" href="fatzebra.js/harness.html">JS SDK</a></li>
+      <li class="nav-item"><a class="nav-link" href="v3/harness.html">V3 Hosted</a></li>
+      <li class="nav-item"><a class="nav-link" href="direct-post/harness.html">Direct Post</a></li>
+    </ul>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="hero">
+      <h1>Fat Zebra Integration Test Harnesses</h1>
+      <p>
+        A set of browser-based developer tools for testing and exploring the three primary Fat Zebra
+        payment integration approaches. Each harness exercises the full request/response cycle against
+        the Fat Zebra sandbox environment — no backend required.
+      </p>
+      <p class="mb-0">
+        <span class="badge badge-secondary">Sandbox only</span>
+        &nbsp;
+        <span class="badge badge-secondary">No backend</span>
+        &nbsp;
+        <span class="badge badge-secondary">Static / GitHub Pages</span>
+      </p>
+    </div>
+
+    <div class="row mb-4">
+
+      <!-- JS SDK -->
+      <div class="col-md-4 mb-4">
+        <div class="card harness-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fa fa-code mr-1" aria-hidden="true"></i> JS SDK</span>
+            <span class="badge badge-info">fatzebra.js</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted" style="font-size:0.875rem;">
+              Renders Fat Zebra's hosted payment form inside an iframe on your page via the
+              <code>fatzebra.js</code> SDK. Handles 3DS2 authentication in-page and fires
+              JavaScript events on tokenization and payment outcomes.
+            </p>
+            <div class="detail-row"><span class="label">Credentials</span><span>accessToken, username, sharedSecret</span></div>
+            <div class="detail-row"><span class="label">Hash</span><span><code>HMAC-MD5(secret, "reference:amount:currency")</code></span></div>
+            <div class="detail-row"><span class="label">Outcome</span><span>JS events (<code>fz.payment.success</code>, <code>fz.payment.error</code>)</span></div>
+            <div class="detail-row"><span class="label">SDK endpoint</span><span><code>cdn.pmnts-sandbox.io/sdk/v1/fatzebra.js</code></span></div>
+          </div>
+          <div class="card-footer">
+            <a href="fatzebra.js/harness.html" class="btn btn-outline-info btn-sm">Open JS SDK harness &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- V3 Hosted -->
+      <div class="col-md-4 mb-4">
+        <div class="card harness-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fa fa-external-link mr-1" aria-hidden="true"></i> V3 Hosted Payment Page</span>
+            <span class="badge badge-primary">V3</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted" style="font-size:0.875rem;">
+              Redirects the buyer to Fat Zebra's fully hosted payment page, or embeds it in an iframe.
+              The harness builds and signs the URL, then opens it via redirect or iframe mode.
+              FatZebra redirects back to <code>return_path</code> with result parameters.
+            </p>
+            <div class="detail-row"><span class="label">Credentials</span><span>username, sharedSecret</span></div>
+            <div class="detail-row"><span class="label">Hash input</span><span><code>reference:amount:currency[:return_path][:cards]</code></span></div>
+            <div class="detail-row"><span class="label">Modes</span><span>Redirect, iFrame</span></div>
+            <div class="detail-row"><span class="label">Base URL</span><span><code>paynow.pmnts-sandbox.io/v3/{username}/…</code></span></div>
+          </div>
+          <div class="card-footer">
+            <a href="v3/harness.html" class="btn btn-outline-primary btn-sm">Open V3 harness &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Direct Post -->
+      <div class="col-md-4 mb-4">
+        <div class="card harness-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fa fa-paper-plane mr-1" aria-hidden="true"></i> Direct Post</span>
+            <span class="badge badge-success">API</span>
+          </div>
+          <div class="card-body">
+            <p class="text-muted" style="font-size:0.875rem;">
+              Posts card details directly to the Fat Zebra gateway. Supports two submission
+              modes: Form POST (browser redirect to <code>return_path</code>) and JSONP
+              (in-page response handling). The harness previews the full request before submit.
+            </p>
+            <div class="detail-row"><span class="label">Credentials</span><span>username, sharedSecret</span></div>
+            <div class="detail-row"><span class="label">Hash (Form POST)</span><span><code>reference:cents:currency:return_path</code></span></div>
+            <div class="detail-row"><span class="label">Modes</span><span>Form POST, JSONP</span></div>
+            <div class="detail-row"><span class="label">Endpoint</span><span><code>gateway.pmnts-sandbox.io/v2/purchases/direct</code></span></div>
+          </div>
+          <div class="card-footer">
+            <a href="direct-post/harness.html" class="btn btn-outline-success btn-sm">Open Direct Post harness &rarr;</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-8">
+        <div class="creds-note">
+          <strong>Credentials</strong> — Each harness shares a single browser cookie (<code>fz_creds</code>,
+          path <code>/fatzebra/</code>, 8-hour expiry). Enter your sandbox credentials once via the
+          <strong>Credentials</strong> button in any harness nav bar and they are available across all three.
+          The JS SDK harness additionally requires an <code>accessToken</code>. Sensitive fields
+          (sharedSecret, accessToken) are masked in the UI; the values sent to the gateway are not altered.
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4 mb-4">
+      <div class="col-md-8">
+        <h5>Quick reference — test cards</h5>
+        <p class="text-muted" style="font-size:0.875rem;">
+          Use expiry <strong>12/2029</strong> and CVV <strong>123</strong> (4-digit for Amex) with
+          any harness. Click <strong>View Test Cards</strong> in any harness to see the full list and
+          copy a card number.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered" style="font-size:0.8rem;">
+            <thead class="thead-light">
+              <tr><th>Network</th><th>Card Number</th><th>Scenario</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Visa</td><td><code>4000000000001000</code></td><td>3DS2 Frictionless — Successful Authentication</td></tr>
+              <tr><td>Mastercard</td><td><code>5200000000001005</code></td><td>3DS2 Frictionless — Successful Authentication</td></tr>
+              <tr><td>Amex</td><td><code>340000000001007</code></td><td>3DS2 Frictionless — Successful Authentication</td></tr>
+              <tr><td>Visa</td><td><code>4000000000001091</code></td><td>3DS2 — Challenge Required</td></tr>
+              <tr><td>Mastercard</td><td><code>5200000000001096</code></td><td>3DS2 — Challenge Required</td></tr>
+              <tr><td>Visa</td><td><code>4000000000001018</code></td><td>3DS2 Frictionless — Failed Authentication</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>
