@@ -55,7 +55,15 @@ function updateCredsStatus() {
 $('#credentials-modal').on('show.bs.modal', function () {
   const c = loadCreds() || {};
   $('#cred-username').val(c.username || '');
-  $('#cred-shared-secret').val(c.sharedSecret || '');
+  $('#cred-shared-secret').prop('type', 'password').val(c.sharedSecret || '');
+  $('[data-toggle-pw]').find('i').removeClass('fa-eye-slash').addClass('fa-eye');
+});
+
+$(document).on('click', '[data-toggle-pw]', function () {
+  const input = document.getElementById($(this).data('togglePw'));
+  const reveal = input.type === 'password';
+  input.type = reveal ? 'text' : 'password';
+  $(this).find('i').toggleClass('fa-eye fa-eye-slash');
 });
 
 $('#cred-save').on('click', function () {

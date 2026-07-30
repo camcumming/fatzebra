@@ -111,7 +111,12 @@
             <p class="text-muted small mb-3">Saved as a cookie shared across all harnesses. Expires after 8 hours.</p>
             <div class="form-group">
               <label for="cred-access-token">accessToken</label>
-              <input type="text" id="cred-access-token" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <div class="input-group">
+                <input type="password" id="cred-access-token" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="button" data-toggle-pw="cred-access-token" tabindex="-1"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
             </div>
             <div class="form-group">
               <label for="cred-username">username</label>
@@ -119,7 +124,12 @@
             </div>
             <div class="form-group">
               <label for="cred-shared-secret">sharedSecret</label>
-              <input type="text" id="cred-shared-secret" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <div class="input-group">
+                <input type="password" id="cred-shared-secret" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="button" data-toggle-pw="cred-shared-secret" tabindex="-1"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -132,7 +142,7 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=3"></script>
+    <script src="harness.js?v=4"></script>
     <script>
     </script>
   </footer>

@@ -264,7 +264,12 @@
             </div>
             <div class="form-group">
               <label for="cred-shared-secret">sharedSecret</label>
-              <input type="text" id="cred-shared-secret" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <div class="input-group">
+                <input type="password" id="cred-shared-secret" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="button" data-toggle-pw="cred-shared-secret" tabindex="-1"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -277,6 +282,6 @@
     </div>
   </body>
   <footer>
-    <script src="harness.js?v=11"></script>
+    <script src="harness.js?v=12"></script>
   </footer>
 </html>
