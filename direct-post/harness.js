@@ -86,7 +86,7 @@ const callbackUrl = window.location.href.replace(/harness\.html.*$/, 'callback.h
 $('#return_path').val(callbackUrl);
 $('#jsonp_return_path').val(callbackUrl);
 
-$('#reference').val(crypto.randomUUID());
+$('#reference').val(Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10));
 
 updateCredsStatus();
 

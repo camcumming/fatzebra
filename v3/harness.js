@@ -81,7 +81,7 @@ $('#cred-clear').on('click', function () {
   updateCredsStatus();
 });
 
-$('#reference').val(crypto.randomUUID());
+$('#reference').val(Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10));
 $('#return_path').val(window.location.href.replace(/harness\.html.*$/, 'callback.html'));
 
 updateCredsStatus();
