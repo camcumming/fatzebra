@@ -1,5 +1,20 @@
 /* ── Mobile-first base (all screen sizes) ───────────────────────────── */
 
+.page-hero {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 0.75rem;
+}
+.page-hero h2 {
+  margin-bottom: 0.3rem;
+}
+.page-hero .page-desc {
+  color: #6c757d;
+  font-size: 0.9rem;
+  max-width: 680px;
+  margin-bottom: 0;
+}
+
 .row-margin {
   margin-top: 12px;
 }
