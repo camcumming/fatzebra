@@ -133,16 +133,19 @@ const SDK_PARAMS = [
     group: 'customer',
     params: [
       { name: 'firstName', default: 'John' },
-      { name: 'lastName', default: 'Doe' },
-      { name: 'email', default: 'john.doe@123.com' },
-      { name: 'address', default: '123 Australia Blvd.' },
-      { name: 'city', default: 'Sydney' },
-      { name: 'postcode', default: '2000' },
-      { name: 'state', default: 'NSW' },
-      { name: 'country', default: 'AU' }
+      { name: 'lastName',  default: 'Doe'  },
+      { name: 'email',     default: 'john.doe@123.com' }
     ]
   }
 ]
+
+const ADDRESS_PARAMS = [
+  { name: 'address',  default: '123 Australia Blvd.' },
+  { name: 'city',     default: 'Sydney' },
+  { name: 'postcode', default: '2000'   },
+  { name: 'state',    default: 'NSW'    },
+  { name: 'country',  default: 'AU'     }
+];
 
 const HPP_PERMITTED_OPTIONS = [
   { name: 'buttonText', type: 'string', default: '' },
@@ -191,6 +194,20 @@ for (const group of SDK_PARAMS) {
     sdkOptionsContainer.append(createTextField(item));
   }
 
+  if (group.group === 'customer') {
+    sdkOptionsContainer.append(
+      '<div class="form-check mt-2 mb-1">' +
+      '<input class="form-check-input" type="checkbox" id="show-address">' +
+      '<label class="form-check-label text-muted" for="show-address">Show Address</label>' +
+      '</div>'
+    );
+    const $aw = $('<div id="fz-address-wrapper" style="display:none;"></div>');
+    for (const item of ADDRESS_PARAMS) {
+      $aw.append(createTextField(item));
+    }
+    sdkOptionsContainer.append($aw);
+  }
+
   sdkOptionsContainer.append('<br/>');
 }
 
@@ -214,6 +231,10 @@ updateCredsStatus();
 
 $('#show-options').on('change', function () {
   $('#fz-options-wrapper').toggle(this.checked);
+});
+
+$('#show-address').on('change', function () {
+  $('#fz-address-wrapper').toggle(this.checked);
 });
 
 const OAUTH_URL = 'https://api.pmnts-sandbox.io/oauth/token';
@@ -297,17 +318,28 @@ const loadHPP = async function() {
   }
 
   $btn.prop('disabled', false).text('Load Payments Page');
-  const amount       = parseInt($('#amount').val());
-  const currency     = $('#currency').val();   
-  const reference    = $('#reference').val();    
-  const firstName    = $('#firstName').val();   
-  const lastName     = $('#lastName').val();   
-  const email        = $('#email').val();   
-  const address      = $('#address').val();    
-  const city         = $('#city').val();   
-  const postcode     = $('#postcode').val();   
-  const state        = $('#state').val();   
-  const country      = $('#country').val();
+  const amount    = parseInt($('#amount').val());
+  const currency  = $('#currency').val();
+  const reference = $('#reference').val();
+
+  const customer = {
+    firstName: $('#firstName').val(),
+    lastName:  $('#lastName').val(),
+    email:     $('#email').val()
+  };
+
+  if ($('#show-address').is(':checked')) {
+    const addr = $('#address').val();
+    const city = $('#city').val();
+    const pc   = $('#postcode').val();
+    const st   = $('#state').val();
+    const co   = $('#country').val();
+    if (addr) customer.address  = addr;
+    if (city) customer.city     = city;
+    if (pc)   customer.postcode = pc;
+    if (st)   customer.state    = st;
+    if (co)   customer.country  = co;
+  }
 
   const verification = CryptoJS.HmacMD5([reference, amount, currency].join(':'), sharedSecret).toString();
 
@@ -384,16 +416,7 @@ const loadHPP = async function() {
 
   fz.renderPaymentsPage({
     containerId: 'fz-iframe',
-    customer: {
-      firstName,
-      lastName,
-      email,
-      address,
-      city,
-      postcode,
-      state,
-      country
-    },
+    customer,
     paymentIntent: {
       payment: {
         amount,
