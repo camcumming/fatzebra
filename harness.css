@@ -1,0 +1,52 @@
+/* ── Mobile-first base (all screen sizes) ───────────────────────────── */
+
+/* Page hero — consistent title + description across all pages */
+.page-hero {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+}
+.page-hero h1,
+.page-hero h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0.3rem;
+}
+.page-hero .page-desc {
+  color: #6c757d;
+  font-size: 0.9rem;
+  max-width: 680px;
+  margin-bottom: 0;
+}
+
+.row-margin { margin-top: 12px; }
+.button-controls { margin-bottom: 8px; }
+.button-controls .btn { margin-bottom: 0.375rem; margin-right: 0.375rem; }
+.mono { word-break: break-all; }
+.navbar { flex-wrap: wrap; }
+.navbar .navbar-nav { flex-wrap: wrap; }
+h4 { font-size: 1.1rem; margin-top: 0.25rem; }
+.container-fluid, .container { padding-left: 10px; padding-right: 10px; }
+
+/* JS SDK harness — iframe container */
+#fz-iframe {
+  width: 100%;
+  max-width: 600px;
+  height: 420px;
+}
+
+iframe {
+  width: 100%;
+  max-width: 600px;
+  height: 420px;
+}
+
+/* ── Tablet and up (≥ 576 px) ────────────────────────────────────────── */
+@media (min-width: 576px) {
+  .row-margin { margin-top: 20px; }
+  .button-controls { margin-bottom: 10px; }
+  h4 { font-size: 1.5rem; margin-top: 0; }
+  .container-fluid, .container { padding-left: 15px; padding-right: 15px; }
+  #fz-iframe, iframe { height: 600px; }
+}
