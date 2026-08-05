@@ -17,7 +17,7 @@ Renders Fat Zebra's hosted payment form inside an iframe on your page using the 
 - **Outcome events:** `fz.payment.success`, `fz.payment.error`, `fz.tokenization.success`, `fz.sca.success`
 - **Response display:** `fz.payment.success` and `fz.payment.error` outcomes are parsed and displayed in-page (transaction ID, response code, amount, card details, raw JSON)
 - **SDK CDN:** `https://cdn.pmnts-sandbox.io/sdk/v1/fatzebra.js`
-- **OAuth token:** obtained via `POST https://api.pmnts-sandbox.io/oauth/token` — the endpoint blocks browser requests (CORS); use the curl command generator in the Credentials modal to get a token and paste it in. Tokens expire after 15 minutes.
+- **OAuth token:** obtained via `POST https://api.pmnts-sandbox.io/oauth/token`. The harness tries to fetch this in-browser first, but the endpoint doesn't allow cross-origin requests from the page (CORS), so that call fails. As a workaround, the Credentials modal generates a ready-to-run curl command (per-OS, auto-copies to clipboard) that fetches the token outside the browser — paste the result into `accessToken` and the harness will use it instead. Tokens expire after 15 minutes.
 - **Harness:** [`/fatzebra.js/harness.html`](https://camcumming.github.io/fatzebra/fatzebra.js/harness.html)
 
 ---
